@@ -1,0 +1,231 @@
+---
+title: "brfss"
+author: "Teg Uppal"
+date: "3/3/2020"
+output: html_document
+---
+
+```{r }
+library("lodown")
+lodown( "brfss" , output_dir = file.path( path.expand( "~" ) , "BRFSS" ) )
+
+brfss_data<-"H:/Job/Merck/HCUP_data/brfss_data"
+brfss_sas<-dir(brfss_data)
+brfss_obj<-"H:/Job/Merck/HCUP_data/brfss_obj"
+
+for (i in (1:4)){
+  x<-read_sas(paste0(brfss_data, "/", brfss_sas[i]))
+  saveRDS(x, file=paste0(brfss_obj, "/", substring(brfss_sas[i], 5,8) , ".RDS"))
+}
+brfss_sas
+
+
+x<-read.xport(paste0(brfss_data, "/", brfss_sas[5]))
+var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT", "X_IMPAGE", "X_IMPRACE", "X_REGION", "DIABETE3", "SEX", "AGE", "X_LLCPM03", "X_LLCPM04", "X_INCOMG", "GENHLTH")
+colnames(x)
+chck<-ifelse(var_11 %in% colnames(x), T,F)
+chck
+colnames(x)
+x<-x[var_11]
+```
+
+
+```{r }
+colnames(x)
+options( survey.lonely.psu = "adjust" )
+
+library(survey)
+
+brfss_design<-svydesign(
+      id = ~ X_PSU ,
+      strata = ~ X_STSTR,
+      data = x,
+      weight = ~ X_LLCPWT,
+      nest = TRUE
+)
+
+brfss_design<-update(
+  brfss_design,
+  fair_or_poor_health = ifelse( GENHLTH %in% 1:5 , as.numeric( GENHLTH > 3 ) , NA ) ,
+   state_name = factor(X_STATE,
+                levels = 
+                    c(1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 66, 72, 78),
+                labels = c("ALABAMA", "ALASKA", "ARIZONA", "ARKANSAS", "CALIFORNIA", "COLORADO", "CONNECTICUT", "DELAWARE", "DISTRICT OF COLUMBIA", "FLORIDA", "GEORGIA", "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA", "KANSAS", "KENTUCKY", "LOUISIANA", "MAINE", "MARYLAND", "MASSACHUSETTS", "MICHIGAN", "MINNESOTA", "MISSISSIPPI", "MISSOURI", "MONTANA", "NEBRASKA", "NEVADA", "NEW HAMPSHIRE", "NEW JERSEY", "NEW MEXICO", "NEW YORK", "NORTH CAROLINA", "NORTH DAKOTA", "OHIO", "OKLAHOMA", "OREGON", "PENNSYLVANIA", "RHODE ISLAND", "SOUTH CAROLINA", "SOUTH DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT", "VIRGINIA", "WASHINGTON", "WEST VIRGINIA", "WISCONSIN", "WYOMING", "GUAM", "PUERTO RICO", "U.S. VIRGIN ISLANDS")),
+  FEMALE = ifelse(SEX == 1, "MALE", "FEMALE"),
+  
+  INCOME= ifelse(X_INCOMG %in% c(1:2), "<25,000",
+                 ifelse(X_INCOMG %in% c(3,4,5), "≥25,000",
+                        ifelse(X_INCOMG==9, "Missing/refused", ""))),
+  
+  DIAB = ifelse(DIABETE3==1, "Diabetes", "No Diabetes"),
+  
+  MAR = ifelse(X_LLCPM04==1, "Married", "Not Married"),
+  
+  all = 1,
+  
+  RACE=factor(X_IMPRACE,
+                levels = 
+                    c(1, 2, 3, 4, 5, 6),
+                labels = c("White, Non-Hispanic", "Black, Non-Hispanic", "Asian, Non-Hispanic", "American Indian/Alaskan Native, Non-Hispanic","Hispanic", "Other race, Non-Hispanic")),
+  
+  EDU=factor(X_LLCPM03,
+             levels = c(1,2,3,4),
+             labels= c("Less than HS", "HS Grad", "Some College", "College Grad"))
+  
+  )
+
+tot<-svyby(~all, ~SEX, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_1<-assign(paste0("count", "_", var_name), b)
+
+
+tot<-svyby(~all, ~INCOME, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_2<-assign(paste0("count", "_", var_name), b)
+
+
+tot<-svyby(~all, ~RACE, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_3<-assign(paste0("count", "_", var_name), b)
+
+
+tot<-svyby(~all, ~EDU, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_4<-assign(paste0("count", "_", var_name), b)
+
+
+tot<-svyby(~all, ~MAR, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_5<-assign(paste0("count", "_", var_name), b)
+
+tot<-svyby(~all, ~DIAB, brfss_design, svytotal)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_6<-assign(paste0("count", "_", var_name), b)
+
+
+tot<-svytotal(~all, brfss_design)
+y<-as.data.frame(as.tibble(tot[1]))
+var_tot<-data.frame("Variable"="Total", "n of events"=y, "%"= "100%")
+colnames(var_tot)=c("Variable", "n of events", "%")
+
+all_ed_char<-rbind(var_1,var_2,var_3,var_4, var_5, var_6, var_tot)
+yr<-mean(brfss_design$variables$YEAR)
+all_ed_char
+
+all_ed_char<-knitr::kable(all_ed_char, caption=paste0("Sample Characteristics of US Adult Population reporting ED use in ", yr), digits=1, format.args = list(big.mark = ",", 
+  scientific = FALSE,  align = "c", padding=3))%>%
+    kable_styling( full_width= T) %>%
+              pack_rows("Age", 1,5)%>%
+              pack_rows("Sex", 6,7)%>%
+              pack_rows("Urban/Rural", 8,9)%>%
+              pack_rows("Region", 10, 13) %>%
+              pack_rows("Insurance", 14, 18)
+all_ed_char              
+
+rm(x,y,w,z,a,c)
+
+x<-svyby(~all, ~SEX, brfss_design, svytotal)
+y<-svyby(~all, ~INCOME, brfss_design, svytotal)
+w<-svyby(~all, ~DIAB, brfss_design, svytotal)
+z<-svyby(~all, ~MAR, brfss_design, svytotal)
+a<-svyby(~all, ~RACE, brfss_design, svytotal)
+c<-svyby(~all, ~EDU, brfss_design, svytotal)
+
+```
+
+
+```{r}
+x
+y
+w
+z
+a
+b
+c
+d
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r }
+
+
+
+
+```
+
+
+```{r }
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r }
+
+
+
+
+```
+
+
+```{r }
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```

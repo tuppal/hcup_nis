@@ -1,0 +1,415 @@
+---
+title: "SID_import"
+author: "Teg Uppal"
+date: "1/28/2020"
+output: html_document
+---
+
+rm(list = ls(all.names = TRUE))
+```{r}
+  az_list<- dir(az_sid)
+  fl_list<- dir(fl_sid)
+  ia_list<- dir(ia_sid)
+  ky_list<- dir(ky_sid)
+  md_list<- dir(md_sid)
+  nc_list<- dir(nc_sid)
+  ne_list<- dir(ne_sid)
+  nj_list<- dir(nj_sid)
+  ny_list<- dir(ny_sid)
+  ut_list<- dir(ut_sid)
+  vt_list<- dir(vt_sid)
+
+sid_list<-as.list(c(az_sid, fl_sid, ia_sid, ky_sid, md_sid, nc_sid, ne_sid, nj_sid, ny_sid, ut_sid, vt_sid))
+sid_list
+```
+
+
+```{r}
+open_sid<-function(x){
+  st_name<-substring(x, 27,28)
+  x_08<-dir(paste0(x, "/2008"))
+  x_11<-dir(paste0(x, "/2011"))
+  x_14<-dir(paste0(x, "/2014"))
+  ifelse(st_name %in% c("NY", "VT"),
+         x_16<-dir(paste0(x, "/2016"))
+         ,x_17<-dir(paste0(x, "/2017")))
+  ifelse(st_name %in% c("NY", "VT"),
+  y<-as.list(c(x_08,x_11,x_14,x_16)),
+  y<-as.list(c(x_08,x_11,x_14,x_17)))
+  core<-grep("core", y)
+  c_y1<-core[1]
+  x_y1_c<-y[c_y1]
+  c_y2<-core[2]
+  x_y2_c<-y[c_y2]
+  c_y3<-core[3]
+  x_y3_c<-y[c_y3]
+  c_y4<-core[4]
+  x_y4_c<-y[c_y4]
+  y<-as.list(c(x_y1_c, x_y2_c, x_y3_c, x_y4_c))
+  return(y)
+}
+
+for (i in seq_along(sid_list[c(1:11)])){
+  y<-open_sid(sid_list[i])
+  rds_y1<-assign(substring(sid_list[i], 27, 28), read_sas(paste0(sid_list[i],"/", substring(y[1], 9, 12), "/", y[1])))
+  saveRDS(rds_y1, file=paste0("H:/Job/Merck/HCUP_data/SID_obj", "/", substring(y[1], 1,12), ".RDS"))
+  rm(rds_y1)
+  gc()
+  
+  rds_y2<-assign(substring(sid_list[i], 27, 28), read_sas(paste0(sid_list[i],"/", substring(y[2], 9, 12), "/", y[2])))
+  saveRDS(rds_y2, file=paste0("H:/Job/Merck/HCUP_data/SID_obj", "/", substring(y[2], 1,12), ".RDS"))
+  rm(rds_y2)
+  gc()
+  
+  rds_y3<-assign(substring(sid_list[i], 27, 28), read_sas(paste0(sid_list[i],"/", substring(y[3], 9, 12), "/", y[3])))
+  saveRDS(rds_y3, file=paste0("H:/Job/Merck/HCUP_data/SID_obj", "/", substring(y[3], 1,12), ".RDS"))
+  rm(rds_y3)
+  gc()
+  
+  rds_y4<-assign(substring(sid_list[i], 27, 28), read_sas(paste0(sid_list[i],"/", substring(y[4], 9, 12), "/", y[4])))
+  saveRDS(rds_y4, file=paste0("H:/Job/Merck/HCUP_data/SID_obj", "/", substring(y[4], 1,12), ".RDS"))
+  rm(rds_y4)
+  gc()
+}
+```
+
+
+```{r}
+sid_path<-"H:/Job/Merck/HCUP_data/hcup_obj/SID_obj"
+setwd(sid_path)
+sid_path
+sid_obj<-dir(sid_path)
+sid_check<- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(sid_check)<-c("obj", "age_mean")
+sid_check  
+  
+for (i in seq_along(sid_obj[c(1:44)])){
+  x<-readRDS(file=(paste0(sid_path, "./", sid_obj[i])))
+  a<-mean(x$AGE, na.rm=T)
+  b<-sd(x$AGE, na.rm=T)
+  c<-mean(x$AGEDAY, na.rm=T)
+  d<-sd(x$AGEDAY, na.rm=T)
+  z<-c(sid_obj[i], a,b,c,d)
+  z<-t(as.data.frame(z))
+  colnames(z)<-c("obj", "age_mean", "age_sd", "ageday_mean", "ageday_sd")
+  sid_check<-rbind(sid_check, z)
+  rm(a,b,c,d)
+  gc()
+}
+
+saveRDS(sid_check, file=paste0(repo, "setup/check/sid_check.RDS"))
+```
+
+
+```{r}
+  az_list<- dir(az_sedd)
+  fl_list<- dir(fl_sedd)
+  ia_list<- dir(ia_sedd)
+  ky_list<- dir(ky_sedd)
+  md_list<- dir(md_sedd)
+  nc_list<- dir(nc_sedd)
+  ne_list<- dir(ne_sedd)
+  nj_list<- dir(nj_sedd)
+  ny_list<- dir(ny_sedd)
+  ut_list<- dir(ut_sedd)
+  vt_list<- dir(vt_sedd)
+
+sedd_list<-as.list(c(az_sedd, fl_sedd, ia_sedd, ky_sedd, md_sedd, nc_sedd, ne_sedd, nj_sedd, ny_sedd, ut_sedd, vt_sedd))
+sedd_list
+```
+
+
+```{r}
+#start here
+sedd_list<-as.list(c(ut_sedd, vt_sedd))
+```
+
+
+```{r}
+open_sedd<-function(x){
+  st_name<-substring(x, 28,29)
+  x_08<-dir(paste0(x, "/2008"))
+  x_11<-dir(paste0(x, "/2011"))
+  x_14<-dir(paste0(x, "/2014"))
+  ifelse(st_name %in% c("NY", "VT"),
+         x_16<-dir(paste0(x, "/2016"))
+         ,x_17<-dir(paste0(x, "/2017")))
+  ifelse(st_name %in% c("NY", "VT"),
+  y<-as.list(c(x_08,x_11,x_14,x_16)),
+  y<-as.list(c(x_08,x_11,x_14,x_17)))
+  core<-grep("core", y)
+  c_y1<-core[1]
+  x_y1_c<-y[c_y1]
+  c_y2<-core[2]
+  x_y2_c<-y[c_y2]
+  c_y3<-core[3]
+  x_y3_c<-y[c_y3]
+  c_y4<-core[4]
+  x_y4_c<-y[c_y4]
+  y<-as.list(c(x_y1_c, x_y2_c, x_y3_c, x_y4_c))
+  return(y)
+}
+
+  1:11
+for (i in seq_along(sedd_list[c(1:2)])){
+  y<-open_sedd(sedd_list[i])
+  rds_y1<-assign(substring(sedd_list[i], 27, 28), read_sas(paste0(sedd_list[i],"/", substring(y[1], 10, 13), "/", y[1])))
+  saveRDS(rds_y1, file=paste0("H:/Job/Merck/HCUP_data/SEDD_obj", "/", substring(y[1], 1,13), ".RDS"))
+  rm(rds_y1)
+  gc()
+  
+  rds_y2<-assign(substring(sedd_list[i], 27, 28), read_sas(paste0(sedd_list[i],"/", substring(y[2], 10, 13), "/", y[2])))
+  saveRDS(rds_y2, file=paste0("H:/Job/Merck/HCUP_data/SEDD_obj", "/", substring(y[2], 1,13), ".RDS"))
+  rm(rds_y2)
+  gc()
+  
+  rds_y3<-assign(substring(sedd_list[i], 27, 28), read_sas(paste0(sedd_list[i],"/", substring(y[3], 10, 13), "/", y[3])))
+  saveRDS(rds_y3, file=paste0("H:/Job/Merck/HCUP_data/SEDD_obj", "/", substring(y[3], 1,13), ".RDS"))
+  rm(rds_y3)
+  gc()
+  
+  rds_y4<-assign(substring(sedd_list[i], 27, 28), read_sas(paste0(sedd_list[i],"/", substring(y[4], 10, 13), "/", y[4])))
+  saveRDS(rds_y4, file=paste0("H:/Job/Merck/HCUP_data/SEDD_obj", "/", substring(y[4], 1,13), ".RDS"))
+  rm(rds_y4)
+  gc()
+}
+```
+
+```{r}
+x<-open_sedd(md_sedd)
+x
+(paste0(sed_path, paste0(substring(x[1], 1,2)), "_c/", substring(x[1], 10, 13), "/", x[1]))
+
+x[1]
+rds_y1<-read_sas(paste0(sed_path, paste0(substring(x[1], 1,2)), "_c/", substring(x[1], 10, 13), "/", x[1]))
+saveRDS(rds_y1, file=paste0("H:/Job/Merck/HCUP_data/hcup_obj/SEDD_obj", "/", substring(x[1], 1,13), ".RDS"))
+rm(rds_y1)
+gc()
+
+```
+
+```{r}
+sedd_path<-"H:/Job/Merck/HCUP_data/hcup_obj/SEDD_obj"
+setwd(sedd_path)
+sedd_obj<-dir(sedd_path)
+sedd_check<- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(sedd_check)<-c("obj", "age_mean")
+sedd_check  
+
+
+for (i in seq_along(sedd_obj[c(1:44)])){
+  x<-readRDS(file=(paste0(sedd_path, "./", sedd_obj[i])))
+  a<-mean(x$AGE, na.rm=T)
+  b<-sd(x$AGE, na.rm=T)
+  c<-mean(x$AGEDAY, na.rm=T)
+  d<-sd(x$AGEDAY, na.rm=T)
+  z<-c(sedd_obj[i], a,b,c,d)
+  z<-t(as.data.frame(z))
+  colnames(z)<-c("obj", "age_mean", "age_sd", "ageday_mean", "ageday_sd")
+  sedd_check<-rbind(sedd_check, z)
+  rm(a,b,c,d)
+  gc()
+}
+
+saveRDS(sedd_check, file=paste0(repo, "setup/check/sedd_check.RDS"))
+```
+
+
+```{r}
+nis_2008
+NIS_2008<- dir(NIS_2008)
+NIS_2011<- dir(NIS_2011)
+NIS_2014<- dir(NIS_2014)
+NIS_2016<- dir(NIS_2016)
+nis_data<-c(NIS_2008, NIS_2011, NIS_2014, NIS_2016)
+nis_data
+nis_list
+```
+
+
+```{r}
+open_nis<-function(x){
+  x_08<-dir(paste0(x, "/2008"))
+  x_11<-dir(paste0(x, "/2011"))
+  x_14<-dir(paste0(x, "/2014"))
+  x_16<-dir(paste0(x, "/2016"))
+  y<-as.list(c(x_08,x_11,x_14,x_16))
+  core<-grep("core", y)
+  c_y1<-core[1]
+  x_y1_c<-y[c_y1]
+  c_y2<-core[2]
+  x_y2_c<-y[c_y2]
+  c_y3<-core[3]
+  x_y3_c<-y[c_y3]
+  c_y4<-core[4]
+  x_y4_c<-y[c_y4]
+  y<-as.list(c(x_y1_c, x_y2_c, x_y3_c, x_y4_c))
+  return(y)
+}
+
+nis_list_open<-open_nis(nis_path)
+nis_list_open
+
+
+rds_y1<-read_sas(paste0(nis_path, substring(nis_list_open[1], 5, 8), "/", nis_list_open[1]))
+saveRDS(rds_y1, file=paste0("H:/Job/Merck/HCUP_data/nis_obj", "/", substring(nis_list_open[1], 1, 13), ".RDS"))
+  rm(rds_y1)
+  gc()
+
+rds_y2<-read_sas(paste0(nis_path, substring(nis_list_open[2], 5, 8), "/", nis_list_open[2]))
+saveRDS(rds_y2, file=paste0("H:/Job/Merck/HCUP_data/nis_obj", "/", substring(nis_list_open[2], 1, 13), ".RDS"))
+  rm(rds_y2)
+  gc()
+
+rds_y3<-read_sas(paste0(nis_path, substring(nis_list_open[3], 5, 8), "/", nis_list_open[3]))
+saveRDS(rds_y3, file=paste0("H:/Job/Merck/HCUP_data/nis_obj", "/", substring(nis_list_open[3], 1, 13), ".RDS"))
+  rm(rds_y3)
+  gc()
+
+rds_y4<-read_sas(paste0(nis_path, substring(nis_list_open[4], 5, 8), "/", nis_list_open[4]))
+saveRDS(rds_y4, file=paste0("H:/Job/Merck/HCUP_data/nis_obj", "/", substring(nis_list_open[4], 1, 13), ".RDS"))
+  rm(rds_y4)
+  gc()
+```
+
+
+```{r}
+nis_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NIS_obj"
+setwd(nis_path)
+nis_obj<-dir(nis_path)
+nis_check<- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(nis_check)<-c("obj", "age_mean")
+nis_check  
+
+for (i in seq_along(nis_obj[c(1:4)])){
+  x<-readRDS(file=(paste0(nis_path, "./", nis_obj[i])))
+  a<-mean(x$AGE, na.rm=T)
+  b<-sd(x$AGE, na.rm=T)
+  c<-mean(x$AMONTH, na.rm=T)
+  d<-sd(x$AMONTH, na.rm=T)
+  z<-c(nis_obj[i], a,b,c,d)
+  z<-t(as.data.frame(z))
+  colnames(z)<-c("obj", "age_mean", "age_sd", "AMONTH_mean", "AMONTH_sd")
+  nis_check<-rbind(nis_check, z)
+  rm(a,b,c,d)
+  gc()
+}
+
+nis_check
+saveRDS(nis_check, file=paste0(repo, "setup/check/nis_check.RDS"))
+```
+
+
+```{r}
+NEDS_2008<- dir(NEDS_2008)
+NEDS_2011<- dir(NEDS_2011)
+NEDS_2014<- dir(NEDS_2014)
+NEDS_2016<- dir(NEDS_2016)
+neds_list<-c(NEDS_2008, NEDS_2011, NEDS_2014, NEDS_2016)
+```
+
+
+```{r}
+neds_path
+open_neds<-function(x){
+  x_08<-dir(paste0(x, "/2008"))
+  x_11<-dir(paste0(x, "/2011"))
+  x_14<-dir(paste0(x, "/2014"))
+  x_16<-dir(paste0(x, "/2016"))
+  y<-as.list(c(x_08,x_11,x_14,x_16))
+  core<-grep("core", y)
+  c_y1<-core[1]
+  x_y1_c<-y[c_y1]
+  c_y2<-core[2]
+  x_y2_c<-y[c_y2]
+  c_y3<-core[3]
+  x_y3_c<-y[c_y3]
+  c_y4<-core[4]
+  x_y4_c<-y[c_y4]
+  y<-as.list(c(x_y1_c, x_y2_c, x_y3_c, x_y4_c))
+  return(y)
+}
+
+neds_list_open<-open_neds(neds_path)
+neds_list_open
+
+(paste0(neds_path, substring(neds_list_open[1], 6, 9), "/", neds_list_open[1]))
+
+rds_y1<-read_sas(paste0(neds_path, substring(neds_list_open[1], 6, 9), "/", neds_list_open[1]))
+rds_y1_chck<-mean(rds_y1$YEAR)
+rds_y1_chck
+saveRDS(rds_y1, file=paste0("H:/Job/Merck/HCUP_data/neds_obj", "/", substring(neds_list_open[1], 1, 13), ".RDS"))
+  rm(rds_y1)
+  gc()
+
+
+rds_y2<-read_sas(paste0(neds_path, substring(neds_list_open[2], 6, 9), "/", neds_list_open[2]))
+rds_y2_chck<-mean(rds_y2$YEAR)
+saveRDS(rds_y2, file=paste0("H:/Job/Merck/HCUP_data/neds_obj", "/", substring(neds_list_open[2], 1, 13), ".RDS"))
+  rm(rds_y2)
+  gc()
+
+rds_y3<-read_sas(paste0(neds_path, substring(neds_list_open[3], 6, 9), "/", neds_list_open[3]))
+rds_y3_chck<-mean(rds_y3$YEAR)
+saveRDS(rds_y3, file=paste0("H:/Job/Merck/HCUP_data/neds_obj", "/", substring(neds_list_open[3], 1, 13), ".RDS"))
+  rm(rds_y3)
+  gc()
+
+rds_y4<-read_sas(paste0(neds_path, substring(neds_list_open[4], 6, 9), "/", neds_list_open[4]))
+rds_y4_chck<-mean(rds_y4$YEAR)
+saveRDS(rds_y4, file=paste0("H:/Job/Merck/HCUP_data/neds_obj", "/", substring(neds_list_open[4], 1, 13), ".RDS"))
+  rm(rds_y4)
+  gc()
+
+
+```
+
+
+
+```{r}
+neds_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_obj"
+setwd(neds_path)
+neds_obj<-dir(neds_path)
+neds_check<- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(neds_check)<-c("obj", "age_mean")
+neds_check  
+
+for (i in seq_along(neds_obj[c(1:4)])){
+  x<-readRDS(file=(paste0(neds_path, "./", neds_obj[i])))
+  a<-mean(x$AGE, na.rm=T)
+  b<-sd(x$AGE, na.rm=T)
+  c<-mean(x$AMONTH, na.rm=T)
+  d<-sd(x$AMONTH, na.rm=T)
+  z<-c(neds_obj[i], a,b,c,d)
+  z<-t(as.data.frame(z))
+  colnames(z)<-c("obj", "age_mean", "age_sd", "AMONTH_mean", "AMONTH_sd")
+  neds_check<-rbind(neds_check, z)
+  rm(a,b,c,d)
+  gc()
+}
+
+neds_check
+saveRDS(neds_check, file=paste0(repo, "setup/check/neds_check.RDS"))
+```
+
+```{r}
+neds_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_obj"
+setwd(neds_path)
+neds_obj<-dir(neds_path)
+neds_check<- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(neds_check)<-c("obj", "age_mean")
+neds_check  
+
+for (i in seq_along(neds_obj[c(1:4)])){
+  x<-readRDS(file=(paste0(neds_path, "/", neds_obj[i])))
+  y<-mean(x$AGE, na.rm=T)
+  z<-c(neds_obj[i], y)
+  z<-t(as.data.frame(z))
+  colnames(z)<-c("obj", "age_mean")
+  neds_check<-rbind(neds_check, z)
+  rm(x,y,z)
+  gc()
+}
+neds_check
+saveRDS(neds_check, file=paste0(repo, "setup/check/neds_check.RDS"))
+```
