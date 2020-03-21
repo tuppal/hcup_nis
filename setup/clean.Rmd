@@ -110,8 +110,6 @@ nis_2008<-readRDS(paste0(nis_diab_path, substring(nis_obj[1], 1,8), "_diab.RDS")
 nis_2011<-readRDS(paste0(nis_diab_path, substring(nis_obj[2], 1,8), "_diab.RDS"))
 nis_2014<-readRDS(paste0(nis_diab_path, substring(nis_obj[3], 1,8), "_diab.RDS"))
 nis_2016<-readRDS(paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
-
-
 ```
 
 
@@ -126,7 +124,6 @@ var_14<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "FEMALE", "HOSP_ED
 var_14_p<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "DISP_ED", "NDX", "PAY1", "PAY2", "PL_NCHS", "YEAR")
 var_16<-c("AGE", "DISCWT", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "DISP_ED", "I10_NDX", "PAY1", "PAY2", "HOSP_REGION", "HOSP_UR_TEACH", "HOSP_URCAT4","PL_NCHS", "YEAR")
 inpt_var<-c("HOSP_ED", "KEY_ED", "DISP_IP", "LOS_IP")
-
 
 #2008
 x<-readRDS(file=(paste0(neds_path, "/", neds_obj[1])))
@@ -519,8 +516,6 @@ y <-
 y<-subset(y, adult==1&diab==1)
 saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
 rm(x,y,z)
-
-
 ```
 
 ```{r}

@@ -151,9 +151,29 @@ prop<-function(tot){
   return(b)
 }
 
+prop_se<-function(tot){
+  b<-as.data.frame(as.tibble(tot[,1:3]))
+  b$prop<-paste("(",round((b$all/(sum(b$all))*100), digits=1),"%",")",sep="")
+  colnames(b)<-c("Variable", "n of events", "%")
+  return(b)
+}
+  
+?svyby
+#function to generate demographic characteristics using BRFSS data
+char<-function(x){
+  tot<-svyby(~all, ~x, brfss_design, svytotal)
+  b<-prop(tot)
+  b
+  var_name<-colnames(tot)[1]
+  var<-assign(paste0("count", "_", var_name), b)
+  var
+  colnames(var)<- c("Characteristics", "n", "%")
+  return(var)
+}
+
 
 if(Sys.info()["user"]=="TUPPAL"){
-  repo<- "C:/Users/TUPPAL/merck/hcup_NIS/"
+  repo<- "C:/Users/TUPPAL/merck/hcup_nis"
   data_path <- "H:/Job/Merck/HCUP_data/hcup_sas/sid_sas/"
   nis_list <- dir(data_path)
   az_sid<- paste0(data_path, "AZ_c")
@@ -199,7 +219,7 @@ if(Sys.info()["user"]=="TUPPAL"){
 
 getwd()
 if(Sys.info()["user"]=="teg83"){
-  repo<- "C:/Users/teg83/Documents/GitHub/merck/hcup_NIS/"
+  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
   data_path <- paste0(repo, "Data")
   nis_list <- dir(data_path)
   az_sid<- paste0(data_path, "AZ_c")

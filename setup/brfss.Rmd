@@ -9,29 +9,103 @@ output: html_document
 library("lodown")
 lodown( "brfss" , output_dir = file.path( path.expand( "~" ) , "BRFSS" ) )
 
+
+if(Sys.info()["user"]=="TUPPAL"){
 brfss_data<-"H:/Job/Merck/HCUP_data/brfss_data"
 brfss_sas<-dir(brfss_data)
 brfss_obj<-"H:/Job/Merck/HCUP_data/brfss_obj"
-
-for (i in (1:4)){
-  x<-read_sas(paste0(brfss_data, "/", brfss_sas[i]))
-  saveRDS(x, file=paste0(brfss_obj, "/", substring(brfss_sas[i], 5,8) , ".RDS"))
 }
-brfss_sas
+if(Sys.info()["user"]=="teg83"){
+brfss_data<-"C:/Users/teg83/Documents/BRFSS_Data"
+brfss_sas<-dir(brfss_data)
+brfss_obj<-"C:/Users/teg83/Documents/BRFSS_obj"
 
+}
+  
+  
+for (i in (1:4)){
+  x<-read.xport(paste0(brfss_data, "/", brfss_sas[i]))
+  saveRDS(x, file=paste0(brfss_obj, "/", "BRFSS_", substring(brfss_sas[i], 5,8) , ".RDS"))
+}
 
-x<-read.xport(paste0(brfss_data, "/", brfss_sas[5]))
-var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT", "X_IMPAGE", "X_IMPRACE", "X_REGION", "DIABETE3", "SEX", "AGE", "X_LLCPM03", "X_LLCPM04", "X_INCOMG", "GENHLTH")
-colnames(x)
+brfss_r<-dir(brfss_obj)
+brfss_r[1]
+
+x<-readRDS(paste0(brfss_obj, "/", brfss_r[2]))
+var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT", "X_IMPAGE", "X_IMPRACE", "X_REGION", "DIABETE3", "SEX", "AGE", "X_LLCPM03", "X_LLCPM04", "X_INCOMG", "GENHLTH", "IYEAR")
+var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
+#raking variable; sex by age
+"X_LLCPM01", 
+#raking variable; race/ethnicity
+"X_LLCPM02", 
+#raking variable; education
+"X_LLCPM03",  
+#raking variable; marital status
+"X_LLCPM04",  
+#raking variable; home ownership
+"X_LLCPM05",  
+#raking variable; sex by race/ethnicity
+"X_LLCPM06", 
+#raking variable; race/ethnicity by age
+"X_LLCPM07",  
+#raking variable; phone usage
+"X_LLCPM08",  
+#raking variable; education
+"DIABETE3",  
+#rest of variables
+"X_IMPAGE", "X_IMPRACE", "X_REGION", "DIABETE3", "SEX", "AGE", "X_INCOMG", "GENHLTH", "MSCODE", "IYEAR")
+
+var_14<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
+#raking variable; sex by age
+"X_LLCPM01", 
+#raking variable; race/ethnicity
+"X_LLCPM02", 
+#raking variable; education
+"X_LLCPM03",  
+#raking variable; marital status
+"X_LLCPM04",  
+#raking variable; home ownership
+"X_LLCPM05",  
+#raking variable; sex by race/ethnicity
+"X_LLCPM06", 
+#raking variable; race/ethnicity by age
+"X_LLCPM07",  
+#raking variable; phone usage
+"X_LLCPM08",  
+#raking variable; education
+"DIABETE3",  
+#rest of variables
+"X_IMPAGE", "X_IMPRACE", "X_REGION", "SEX", "AGE", "X_INCOMG", "GENHLTH", "MSCODE", "IYEAR")
+
+var_14_<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
+#raking variable; sex by age
+"X_LLCPM01", 
+#raking variable; race/ethnicity
+"X_LLCPM02", 
+#raking variable; education
+"X_LLCPM03",  
+#raking variable; marital status
+"X_LLCPM04",  
+#raking variable; home ownership
+"X_LLCPM05",  
+#raking variable; sex by race/ethnicity
+"X_LLCPM06", 
+#raking variable; race/ethnicity by age
+"X_LLCPM07",  
+#raking variable; phone usage
+"X_LLCPM08",  
+#raking variable; education
+"DIABETE3",  
+#rest of variables
+"X_IMPAGE", "X_IMPRACE", "X_REGION", "SEX", "AGE", "X_INCOMG", "GENHLTH", "MSCODE", "IYEAR")
+
 chck<-ifelse(var_11 %in% colnames(x), T,F)
 chck
-colnames(x)
 x<-x[var_11]
 ```
 
 
 ```{r }
-colnames(x)
 options( survey.lonely.psu = "adjust" )
 
 library(survey)
@@ -44,14 +118,29 @@ brfss_design<-svydesign(
       nest = TRUE
 )
 
+
+chck<-subset(x, X_STATE==34)
+count(chck$MSCODE)
+
+
 brfss_design<-update(
   brfss_design,
-  fair_or_poor_health = ifelse( GENHLTH %in% 1:5 , as.numeric( GENHLTH > 3 ) , NA ) ,
+  fair_or_poor_health = ifelse( GENHLTH %in% 1:5 , as.numeric( GENHLTH > 3 ) , NA ),
+  health=ifelse(fair_or_poor_health==1, "Fair/poor self-reported health", "Good Health"),
    state_name = factor(X_STATE,
                 levels = 
                     c(1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 66, 72, 78),
                 labels = c("ALABAMA", "ALASKA", "ARIZONA", "ARKANSAS", "CALIFORNIA", "COLORADO", "CONNECTICUT", "DELAWARE", "DISTRICT OF COLUMBIA", "FLORIDA", "GEORGIA", "HAWAII", "IDAHO", "ILLINOIS", "INDIANA", "IOWA", "KANSAS", "KENTUCKY", "LOUISIANA", "MAINE", "MARYLAND", "MASSACHUSETTS", "MICHIGAN", "MINNESOTA", "MISSISSIPPI", "MISSOURI", "MONTANA", "NEBRASKA", "NEVADA", "NEW HAMPSHIRE", "NEW JERSEY", "NEW MEXICO", "NEW YORK", "NORTH CAROLINA", "NORTH DAKOTA", "OHIO", "OKLAHOMA", "OREGON", "PENNSYLVANIA", "RHODE ISLAND", "SOUTH CAROLINA", "SOUTH DAKOTA", "TENNESSEE", "TEXAS", "UTAH", "VERMONT", "VIRGINIA", "WASHINGTON", "WEST VIRGINIA", "WISCONSIN", "WYOMING", "GUAM", "PUERTO RICO", "U.S. VIRGIN ISLANDS")),
-  FEMALE = ifelse(SEX == 1, "MALE", "FEMALE"),
+  
+  AGE_STD=ifelse(AGE>=18 & AGE<30, "18-29",
+                ifelse(AGE>=30 & AGE<40, "30-39",
+                ifelse(AGE>=40 & AGE<49, "40-49",
+                ifelse(AGE>=50 & AGE<64, "50-64",
+                ifelse(AGE>=65 & AGE<74, "65-74",
+                ifelse(AGE>=74, "75+", NA)))))),
+  
+  FEMALE = ifelse(SEX == 1, "Male", 
+                  ifelse(SEX == 2, "Female", NA)),
   
   INCOME= ifelse(X_INCOMG %in% c(1:2), "<25,000",
                  ifelse(X_INCOMG %in% c(3,4,5), "≥25,000",
@@ -66,109 +155,539 @@ brfss_design<-update(
   RACE=factor(X_IMPRACE,
                 levels = 
                     c(1, 2, 3, 4, 5, 6),
-                labels = c("White, Non-Hispanic", "Black, Non-Hispanic", "Asian, Non-Hispanic", "American Indian/Alaskan Native, Non-Hispanic","Hispanic", "Other race, Non-Hispanic")),
+                labels = c("White, Non-Hispanic", "Black, Non-Hispanic", "Asian, Non-Hispanic", "American Indian/Alaskan Native, Non-Hispanic","Hispanic, any race", "Other race, Non-Hispanic")),
+  
+  RACE_co=ifelse(X_IMPRACE == 1, "White, Non-Hispanic", ifelse(X_IMPRACE ==2, "Black, Non-Hispanic", ifelse(X_IMPRACE=="5", "Hispanic, any race", ifelse(X_IMPRACE %in% c(3,4,6), "Other", NA)))),
   
   EDU=factor(X_LLCPM03,
              levels = c(1,2,3,4),
-             labels= c("Less than HS", "HS Grad", "Some College", "College Grad"))
+             labels= c("Less than HS", "HS Grad", "Some College", "College Grad")),
   
+  EDU1=ifelse(X_LLCPM03==1, "Did not graduate High School", ifelse(X_LLCPM03==2, "High school graduate", ifelse(X_LLCPM03==3|X_LLCPM03==4, "Some college or college graduate", NA))),
+  
+  REGION=ifelse(state_name %in% c("CONNECTICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", "VERMONT", "NEW JERSEY", "NEW YORK", "PENSYLVANIA"), "Northeast", ifelse(state_name %in% c("ILLINOIS", "INDIANA", "MICHIGAN", "OHIO", "WISCONSON", "IOWA", "KANSAS", "MINNESOTA", "MISSOURI", "NEBRASKA", "NORTH DAKOTA", "SOUTH DAKOTA"), "Midwest", ifelse(state_name %in% c("DELAWARE", "FLORIDA", "GEORGIA", "MARYLAND", "NORTH CAROLINA", "SOUTH CAROLINA", "VIRGINIA", "DISTRICT OF COLUMBIA", "WEST VIRGINIA", " ALABAMA", "KENTUCKY", "MISSISSIPPI", "TENNESSEE", "ARKANSAS", "LOUISIANA", "OKLAHOMA", "TEXAS"), "South", ifelse(state_name %in% c("ARIZONA", "COLORADO", "IDAHO", "MONTANA", "NEVADA", "NEW MEXICO", "UTAH", "WYOMING", "ALASKA", "CALIFORNIA", "HAWAII", "OREGON", "WASHINGTON"), "West", NA)))),
+  
+  RUR_URB=ifelse(MSCODE %in% c(1,2,3,4), "Urban", ifelse(MSCODE %in% c(5), "Rural", NA))
   )
 
-tot<-svyby(~all, ~SEX, brfss_design, svytotal)
+tot<-svyby(~all, ~FEMALE, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_1<-assign(paste0("count", "_", var_name), b)
+var_1
+colnames(var_1)<- c("Characteristics", "n", "%")
 
-
-tot<-svyby(~all, ~INCOME, brfss_design, svytotal)
+tot<-svyby(~all, ~INCOME, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_2<-assign(paste0("count", "_", var_name), b)
+colnames(var_2)<- c("Characteristics", "n", "%")
 
-
-tot<-svyby(~all, ~RACE, brfss_design, svytotal)
+tot<-svyby(~all, ~RACE_co, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_3<-assign(paste0("count", "_", var_name), b)
+colnames(var_3)<- c("Characteristics", "n", "%")
+var_3<-var_3[c(4,2,1,3),]
+var_3
 
-
-tot<-svyby(~all, ~EDU, brfss_design, svytotal)
+tot<-svyby(~all, ~EDU1, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_4<-assign(paste0("count", "_", var_name), b)
+colnames(var_4)<- c("Characteristics", "n", "%")
 
 
-tot<-svyby(~all, ~MAR, brfss_design, svytotal)
+tot<-svyby(~all, ~MAR, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_5<-assign(paste0("count", "_", var_name), b)
+colnames(var_5)<- c("Characteristics", "n", "%")
 
-tot<-svyby(~all, ~DIAB, brfss_design, svytotal)
+tot<-svyby(~all, ~DIAB, brfss_design, svytotal, na.rm.by=T)
 b<-prop(tot)
 b
 var_name<-colnames(tot)[1]
 var_6<-assign(paste0("count", "_", var_name), b)
+colnames(var_6)<- c("Characteristics", "n", "%")
 
+tot<-svyby(~all, ~RUR_URB, brfss_design, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_7<-assign(paste0("count", "_", var_name), b)
+colnames(var_7)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~REGION, brfss_design, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_8<-assign(paste0("count", "_", var_name), b)
+colnames(var_8)<- c("Characteristics", "n", "%")
+var_3<-var_3[c(4,2,1,3),]
+var_3
+
+tot<-svyby(~all, ~AGE_STD, brfss_design, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_9<-assign(paste0("count", "_", var_name), b)
+var_9
+colnames(var_9)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~health, brfss_design, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_10<-assign(paste0("count", "_", var_name), b)
+var_10
+colnames(var_10)<- c("Characteristics", "n", "%")
 
 tot<-svytotal(~all, brfss_design)
 y<-as.data.frame(as.tibble(tot[1]))
-var_tot<-data.frame("Variable"="Total", "n of events"=y, "%"= "100%")
-colnames(var_tot)=c("Variable", "n of events", "%")
+var_tot<-data.frame("Variable"="Weighted", "n of events"=y, "%"= "100%")
+colnames(var_tot)<- c("Characteristics", "n", "%")
 
-all_ed_char<-rbind(var_1,var_2,var_3,var_4, var_5, var_6, var_tot)
-yr<-mean(brfss_design$variables$YEAR)
-all_ed_char
+tot<-unwtd.count(~all, brfss_design)
+y<-as.data.frame(as.tibble(tot[1]))
+var_unwttot<-data.frame("Variable"="Unweighted", "n of events"=y, "%"= "100%")
+colnames(var_unwttot)<-c("Characteristics", "n", "%")
+var_unwttot
 
-all_ed_char<-knitr::kable(all_ed_char, caption=paste0("Sample Characteristics of US Adult Population reporting ED use in ", yr), digits=1, format.args = list(big.mark = ",", 
+count_MAR<-count_MAR[1,]
+colnames(count_MAR)<- c("Characteristics", "n", "%")
+count_health<-count_health[1,]
+colnames(count_health)<- c("Characteristics", "n", "%")
+count_DIAB<-count_DIAB[1,]
+colnames(count_DIAB)<- c("Characteristics", "n", "%")
+
+all_char<-rbind(var_tot, var_unwttot, var_9,  var_1, var_3, var_8,var_7, var_2,var_4, count_MAR, count_health, count_DIAB)
+all_char<-as.tibble(all_char)
+yr<-as.character(x$IYEAR[1])
+
+all_char_c<-knitr::kable(all_ed_char, caption=paste0("Sample Characteristics of US Adult Population", yr), digits=1, format.args = list(big.mark = ",", 
   scientific = FALSE,  align = "c", padding=3))%>%
     kable_styling( full_width= T) %>%
-              pack_rows("Age", 1,5)%>%
-              pack_rows("Sex", 6,7)%>%
-              pack_rows("Urban/Rural", 8,9)%>%
-              pack_rows("Region", 10, 13) %>%
-              pack_rows("Insurance", 14, 18)
-all_ed_char              
+              pack_rows("Age", 3,8)%>%
+              pack_rows("Sex", 9,10)%>%
+              pack_rows("Race",11,14)%>%
+              pack_rows("Region",15,18)%>%
+              pack_rows("Rural/Urban", 19,20)%>%
+              pack_rows("Income", 21,23)%>%
+              pack_rows("Education", 24,26) %>%
+              pack_rows("Self-reported Health",28,29)
+  
 
-rm(x,y,w,z,a,c)
+#create path for results
+setwd(repo)
+folder<-"brfss_tables"
+dir.create(folder)
+setwd("./brfss_tables")
+filename<-"clean_results"
+path<-"."
+folder<-paste("./",filename, sep="")
+dir.create(folder)
+results_path<-paste("./brfss_tables", "/", filename, sep="")
+results_path
+setwd(repo)
+setwd(results_path)
+cat(all_char_c, file=paste0("national_", yr,".html"))
 
-x<-svyby(~all, ~SEX, brfss_design, svytotal)
-y<-svyby(~all, ~INCOME, brfss_design, svytotal)
-w<-svyby(~all, ~DIAB, brfss_design, svytotal)
-z<-svyby(~all, ~MAR, brfss_design, svytotal)
-a<-svyby(~all, ~RACE, brfss_design, svytotal)
-c<-svyby(~all, ~EDU, brfss_design, svytotal)
-
+#set path for not clean results
+setwd(repo)
+setwd("./brfss_tables")
+filename<-"result_obj"
+path<-"."
+folder<-paste("./",filename, sep="")
+dir.create(folder)
+obj_path<-paste("./brfss_tables", "/", filename, sep="")
+setwd(repo)
+setwd(obj_path)
+saveRDS(all_char, paste0("national_", yr, ".RDS"))
 ```
 
-
 ```{r}
-x
-y
-w
-z
-a
+#covmatrix test
+y<-subset(brfss_design, X_STATE==1)
+tot<-svyby(~all, ~FEMALE, y, svytotal, na.rm.by=T, vartype="ci")
+
+b<-prop(tot)
 b
-c
-d
+var_name<-colnames(tot)[1]
+var_1<-assign(paste0("count", "_", var_name), b)
+var_1
+colnames(var_1)<- c("Characteristics", "n", "%")
+
+
+
+```
+
+```{r}
+stchar_table<-function(y){
+tot<-svyby(~all, ~FEMALE, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_1<-assign(paste0("count", "_", var_name), b)
+var_1
+colnames(var_1)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~INCOME, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_2<-assign(paste0("count", "_", var_name), b)
+colnames(var_2)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~RACE_co, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_3<-assign(paste0("count", "_", var_name), b)
+colnames(var_3)<- c("Characteristics", "n", "%")
+var_3<-var_3[c(4,2,1,3),]
+var_3
+
+tot<-svyby(~all, ~EDU1, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_4<-assign(paste0("count", "_", var_name), b)
+colnames(var_4)<- c("Characteristics", "n", "%")
+
+
+tot<-svyby(~all, ~MAR, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_5<-assign(paste0("count", "_", var_name), b)
+colnames(var_5)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~DIAB, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_6<-assign(paste0("count", "_", var_name), b)
+colnames(var_6)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~RUR_URB, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_7<-assign(paste0("count", "_", var_name), b)
+colnames(var_7)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~AGE_STD, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_9<-assign(paste0("count", "_", var_name), b)
+var_9
+colnames(var_9)<- c("Characteristics", "n", "%")
+
+tot<-svyby(~all, ~health, y, svytotal, na.rm.by=T)
+b<-prop(tot)
+b
+var_name<-colnames(tot)[1]
+var_10<-assign(paste0("count", "_", var_name), b)
+var_10
+colnames(var_10)<- c("Characteristics", "n", "%")
+
+tot<-svytotal(~all, y)
+w<-as.data.frame(as.tibble(tot[1]))
+var_tot<-data.frame("Variable"="Weighted", "n of events"=w, "%"= "100%")
+colnames(var_tot)<- c("Characteristics", "n", "%")
+
+tot<-unwtd.count(~all, y)
+w<-as.data.frame(as.tibble(tot[1]))
+var_unwttot<-data.frame("Variable"="Unweighted", "n of events"=w, "%"= "100%")
+colnames(var_unwttot)<-c("Characteristics", "n", "%")
+var_unwttot
+
+count_MAR<-count_MAR[1,]
+colnames(count_MAR)<- c("Characteristics", "n", "%")
+count_health<-count_health[1,]
+colnames(count_health)<- c("Characteristics", "n", "%")
+count_DIAB<-count_DIAB[1,]
+colnames(count_DIAB)<- c("Characteristics", "n", "%")
+
+all_char<-rbind(var_tot, var_unwttot, var_9,  var_1, var_3,var_7, var_2,var_4, count_MAR, count_health, count_DIAB)
+all_char<-as.tibble(all_char)
+return(all_char)
+}
+
+```
+
+```{r}
+state_list<-c("Arizona", "Nebraska", "Florida", "New Jersey", "Iowa", "New York", "Kentucky", "Utah", "Maryland", "Vermont", "North Carolina")
+state_up<-toupper(state_list)
+
+for(i in seq_along(state_up[1:11])){
+  y<-subset(brfss_design, state_name==state_up[i])
+  assign(paste0(state_up[i], "_char"), stchar_table(y))
+  gc()
+  rm(y)
+}
+yr<-as.character(x$IYEAR[1])
+```
+
+
+```{r}
+ARIZONA_char
+l<-ARIZONA_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[1,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+ARIZONA_char<-rbind(l,j)
+ARIZONA_char<-as.tibble(ARIZONA_char[c(27, 1:26),])
+ARIZONA_char<-as.tibble(ARIZONA_char[c(1, 3:27),])
+ARIZONA_char$n<-round(ARIZONA_char$n, digits=0)
+
+l<-NEBRASKA_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[2,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+NEBRASKA_char<-rbind(l,j)
+NEBRASKA_char<-NEBRASKA_char[c(27, 1:26),]
+NEBRASKA_char$n<-round(NEBRASKA_char$n, digits=0)
+
+
+l<-FLORIDA_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[3,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+FLORIDA_char<-rbind(l,j)
+FLORIDA_char<-FLORIDA_char[c(27, 1:26),]
+FLORIDA_char$n<-round(FLORIDA_char$n, digits=0)
+
+
+l<-`NEW JERSEY_char`
+l
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[4,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+`NEW JERSEY_char`<-rbind(l,j)
+`NEW JERSEY_char`<-`NEW JERSEY_char`[c(27, 1:26),]
+`NEW JERSEY_char`<-`NEW JERSEY_char`[c(26, 2:25),]
+`NEW JERSEY_char`$n<-round(`NEW JERSEY_char`$n, digits=0)
+
+
+l<-IOWA_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[5,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+IOWA_char<-rbind(l,j)
+IOWA_char<-IOWA_char[c(27, 1:26),]
+IOWA_char$n<-round(IOWA_char$n, digits=0)
+
+
+l<-KENTUCKY_char
+var_st
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[7,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+KENTUCKY_char<-rbind(l,j)
+KENTUCKY_char<-KENTUCKY_char[c(27, 1:26),]
+KENTUCKY_char$n<-round(KENTUCKY_char$n, digits=0)
+
+
+l<-UTAH_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[8,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+UTAH_char<-rbind(l,j)
+UTAH_char<-UTAH_char[c(27, 1:26),]
+UTAH_char$n<-round(UTAH_char$n, digits=0)
+
+l<-MARYLAND_char
+var_st
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[9,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+MARYLAND_char<-rbind(l,j)
+MARYLAND_char<-MARYLAND_char[c(27, 1:26),]
+MARYLAND_char$n<-round(MARYLAND_char$n, digits=0)
+
+l<-VERMONT_char
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[10,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+VERMONT_char<-rbind(l,j)
+VERMONT_char<-VERMONT_char[c(27, 1:26),]
+VERMONT_char$n<-round(VERMONT_char$n, digits=0)
+
+
+l<-`NORTH CAROLINA_char`
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[11,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+`NORTH CAROLINA_char`<-rbind(l,j)
+`NORTH CAROLINA_char`<-`NORTH CAROLINA_char`[c(27, 1:26),]
+`NORTH CAROLINA_char`$n<-round(`NORTH CAROLINA_char`$n, digits=0)
+
+
+l<-`NEW YORK_char`
+var_st<-as.tibble(data.frame("Characteristics"="State", "n"=state_list, "%"= "-"))
+j<-var_st[6,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+`NEW YORK_char`<-rbind(l,j)
+`NEW YORK_char`<-`NEW YORK_char`[c(27, 1:26),]
+`NEW YORK_char`$n<-round(`NEW YORK_char`$n, digits=0)
+
+rm(l,j)
+```
+
+
+```{r}
+state_char=list(ARIZONA_char, NEBRASKA_char, FLORIDA_char, `NEW JERSEY_char`, IOWA_char, KENTUCKY_char, UTAH_char, MARYLAND_char, VERMONT_char, `NORTH CAROLINA_char`, `NEW YORK_char`)
+
+yr<-as.character(x$IYEAR[1])
+#create path for results
+setwd(repo)
+folder<-"brfss_tables"
+dir.create(folder)
+setwd("./brfss_tables")
+filename<-"state_clean_results"
+path<-"."
+folder<-paste("./",filename, sep="")
+dir.create(folder)
+state_results_path<-paste0("./brfss_tables", "/", filename)
+
+#set path for not clean results
+setwd(repo)
+setwd("./brfss_tables")
+filename<-"state_result_obj"
+path<-"."
+folder<-paste("./",filename, sep="")
+dir.create(folder)
+state_obj_path<-paste0("/brfss_tables", "/", filename)
+setwd(repo)
+setwd(paste0(repo,state_obj_path))
+saveRDS(state_char[i], paste0(st_name,"", yr, ".RDS"))
+
+state_table<-function(x){
+t<-knitr::kable(x, caption=paste0("Sample Characteristics of", st_name, "Adult Population,", yr), digits=1, format.args = list(big.mark = ",", 
+  scientific = FALSE,  align = "c", padding=3))%>%
+    kable_styling( full_width= T) %>%
+              pack_rows("Sample", 1,3)%>%
+              pack_rows("Age", 4, 9)%>%
+              pack_rows("Sex", 10,11)%>%
+              pack_rows("Race",12,15)%>%
+              pack_rows("Rural/Urban", 16,17)%>%
+              pack_rows("Income", 18,20)%>%
+              pack_rows("Education", 21,23) %>%
+              pack_rows("Self-reported Health",25,26)
+return(t)
+}
+
+nj_table<-function(x){
+t<-knitr::kable(x, caption=paste0("Sample Characteristics of", st_name, "Adult Population,", yr), digits=1, format.args = list(big.mark = ",", 
+  scientific = FALSE,  align = "c", padding=3))%>%
+    kable_styling( full_width= T) %>%
+              pack_rows("Sample", 1,3)%>%
+              pack_rows("Age", 4, 9)%>%
+              pack_rows("Sex", 10,11)%>%
+              pack_rows("Race",12,15)%>%
+              pack_rows("Income", 17,19)%>%
+              pack_rows("Education", 20,22) %>%
+              pack_rows("Self-reported Health",24,25)
+return(t)
+}
+
+state_char=list(ARIZONA_char, NEBRASKA_char, FLORIDA_char, IOWA_char, KENTUCKY_char, UTAH_char, MARYLAND_char, VERMONT_char, `NORTH CAROLINA_char`, `NEW YORK_char`)
+
+
+for(i in seq_along(state_char[1:10])){
+setwd(paste0(repo,state_obj_path))
+st_name<-state_char[[i]]$n[1]
+saveRDS(state_char[[i]], paste0(st_name,"_", yr, ".RDS"))
+yr<-as.character(x$IYEAR[1])
+c<-state_table(state_char[[i]])
+setwd(paste0(repo,state_results_path))
+cat(c, file=paste0(st_name, "_", yr,".html"))
+rm(st_name,c)
+}
+
+#new jersey seperate because of lack of rural respondents?
+setwd(paste0(repo,state_obj_path))
+st_name<-`NEW JERSEY_char`$n[1]
+saveRDS(`NEW JERSEY_char`, paste0(st_name,"_", yr, ".RDS"))
+yr<-as.character(x$IYEAR[1])
+c<-nj_table(`NEW JERSEY_char`)
+setwd(paste0(repo,state_results_path))
+cat(c, file=paste0(st_name, "_", yr,".html"))
+rm(st_name,c)
+
+
+
 
 ```
 
 
 ```{r}
+```
 
 
+```{r}
+```
 
+
+```{r}
+(noquote(paste0("brfss_design$variables$", char_list[2])))
+var<-char(brfss_design$variables$FEMALE)
+var
+
+char_list<-as.character(brfss_design$variables$AGE_STD, brfss_design$variables$FEMALE, brfss_design$variables$INCOME, brfss_design$variables$RACE_co, brfss_design$variables$EDU, brfss_design$variables$MAR, brfss_design$variables$RUR_URB, brfss_design$variables$DIAB, brfss_design$variables$REGION, brfss_design$variables$AGE_STD, brfss_design$variables$health)
+
+char_list<-c("AGE_STD", "FEMALE", "INCOME", "RACE_co", "EDU", "MAR", "RUR_URB", "DIAB", "REGION", "AGE_STD", "health")
+
+char_list[1]
+noquote(paste0("brfss_design$variables$", char_list[1]))
+
+
+for (i in seq_along(char_list[1:11])){
+  assign(paste0("var_", char_list[i]), char(noquote(paste0("brfss_design$variables$", char_list[1]))))
+}
+
+assign(paste0("var_", char_list[2]), char(noquote(paste0("brfss_design$variables$", char_list[2]))))
+
+
+assign(paste0("var_", ch_var_list[2]), char(noquote(paste0("brfss_design$variables$", char_list[2]))))
+
+char_list[2]
 
 ```
 
 
 ```{r }
+var_st
+for(i in seq_along(state_char[1:11])){
 
+chck<-function(state_char){
+l<-state_char
+j<-var_st[1,1:3]
+colnames(j)<-c("Characteristics", "n", "%")
+j<-as.tibble((j))
+m<-rbind(l,j)
+m<-m[c(29, 1:28),]
+assign(paste0(toupper(as.character(var_st$n[i])), "_char_t"), m)
+}
 
 
 
