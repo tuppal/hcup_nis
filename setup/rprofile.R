@@ -154,10 +154,11 @@ prop<-function(tot){
 prop_se<-function(tot){
   b<-as.data.frame(as.tibble(tot[,1:3]))
   b$prop<-paste("(",round((b$all/(sum(b$all))*100), digits=1),"%",")",sep="")
-  colnames(b)<-c("Variable", "n of events", "%")
+  b<-b[c(1,2,4,3)]
+  colnames(b)<-c("Variable", "n of events", "%", "se")
   return(b)
 }
-  
+
 ?svyby
 #function to generate demographic characteristics using BRFSS data
 char<-function(x){
