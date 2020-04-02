@@ -9,7 +9,6 @@ output: html_document
 library("lodown")
 lodown( "brfss" , output_dir = file.path( path.expand( "~" ) , "BRFSS" ) )
 
-
 if(Sys.info()["user"]=="TUPPAL"){
 brfss_data<-"H:/Job/Merck/HCUP_data/brfss_data"
 brfss_sas<-dir(brfss_data)
@@ -19,18 +18,15 @@ if(Sys.info()["user"]=="teg83"){
 brfss_data<-"C:/Users/teg83/Documents/BRFSS_Data"
 brfss_sas<-dir(brfss_data)
 brfss_obj<-"C:/Users/teg83/Documents/BRFSS_obj"
-
 }
-brfss_sas
-  
+
+ifelse(!file.exists(paste0(brfss_obj, "/", "BRFSS_20", substring(brfss_sas[5], 7,8) , ".RDS")), 
 for (i in (1:5)){
   x<-read.xport(paste0(brfss_data, "/", brfss_sas[i]))
   saveRDS(x, file=paste0(brfss_obj, "/", "BRFSS_", substring(brfss_sas[i], 5,8) , ".RDS"))
-}
+}, print("next"))
 
 brfss_r<-dir(brfss_obj)
-x<-readRDS(paste0(brfss_obj, "/", brfss_r[5]))
-
 var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
 #raking variable; sex by age
 "X_LLCPM01", 
@@ -94,10 +90,23 @@ var_17<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
 "DIABETE3",  
 #rest of variables
 "X_AGE80","SEX", "X_INCOMG", "GENHLTH", "MSCODE", "IYEAR")
-colnames(x)
 
-x<-x[var_17]
+state_list<-c("Arizona", "Nebraska", "Florida", "New Jersey", "Iowa", "New York", "Kentucky", "Utah", "Maryland", "Vermont", "North Carolina")
+state_up<-toupper(state_list)
+
+
+x<-readRDS(paste0(brfss_obj, "/", brfss_r[5]))
 yr<-as.character(x$IYEAR[1])
+if(yr==2011){
+  x<-x[var_11]
+}else if(yr==2014){
+  x<-x[var_14]
+}else if(yr==2016){
+  x<-x[var_16]
+}else if(yr==2017){
+  x<-x[var_17]
+}else{(print("next"))}
+
 ```
 
 
@@ -244,7 +253,6 @@ brfss_design<-update(
 }else{(print("next"))}
 return(brfss_design)
 }
-
 nat_table<-function(brfss_design){
 tot<-svyby(~all, ~FEMALE, brfss_design, svytotal, na.rm.by=T)
 b<-prop_se(tot)
@@ -396,13 +404,6 @@ setwd(obj_path)
 saveRDS(all_char, paste0("national_", yr, ".RDS"))
 return(all_char)
 }
-
-brfss_design<-brfss_clean(brfss_design)
-assign(paste0("char_", yr), nat_table(brfss_design))
-```
-
-
-```{r}
 stchar_table<-function(y){
 tot<-svyby(~all, ~FEMALE, y, svytotal, na.rm.by=T)
 b<-prop_se(tot)
@@ -500,13 +501,9 @@ all_char$se<-round(as.numeric(all_char$se), digits=0)
 all_char[2,4]<-"-"
 return(all_char)
 }
-```
 
-```{r}
-state_list<-c("Arizona", "Nebraska", "Florida", "New Jersey", "Iowa", "New York", "Kentucky", "Utah", "Maryland", "Vermont", "North Carolina")
-state_up<-toupper(state_list)
-
-  
+brfss_design<-brfss_clean(brfss_design)
+assign(paste0("char_", yr), nat_table(brfss_design))
 for(i in seq_along(state_up[1:11])){
   y<-subset(brfss_design, state_name==state_up[i])
   assign(paste0(state_up[i], "_char"), stchar_table(y))
@@ -515,7 +512,6 @@ for(i in seq_along(state_up[1:11])){
 }
 yr<-as.character(x$IYEAR[1])
 ```
-
 
 ```{r}
 ARIZONA_char$n<-round(ARIZONA_char$n, digits=0)
@@ -526,7 +522,6 @@ colnames(j)<-c("Characteristics", "n", "%", "se")
 j<-as.tibble((j))
 j
 l
-
 
 ARIZONA_char<-rbind(l,j)
 ARIZONA_char<-as.tibble(ARIZONA_char[c(25, 1:24),])
@@ -711,77 +706,3 @@ yr<-as.character(x$IYEAR[1])
 state_char=list(ARIZONA_char, NEBRASKA_char, FLORIDA_char, `NEW JERSEY_char`, IOWA_char, KENTUCKY_char, UTAH_char, MARYLAND_char, VERMONT_char, `NORTH CAROLINA_char`, `NEW YORK_char`)
 ```
 
-
-```{r}
-```
-
-
-```{r}
-```
-
-
-```{r}
-
-```
-
-
-```{r }
-
-
-```
-
-
-```{r }
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-```
-
-
-```{r }
-
-
-
-
-```
-
-
-```{r }
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-```
-
-
-```{r}
-
-
-
-
-```

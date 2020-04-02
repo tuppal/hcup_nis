@@ -1,0 +1,227 @@
+---
+title: "complications_list"
+output: html_document
+---
+
+```{r}
+#ICD9, Diabetes Complications
+#short term complications
+keto<-c(25010, 25011, 25012, 25013)
+dm_coma_hyperosmo<-c(25020, 25021,25022,25023,25030,25031,25032,25033)
+dm_shorterm_ICD9<-list(ketoacidosis,dm_coma_hyperosmo)
+rm(keto,dm_coma_hyperosmo)
+#long term complications
+dm_renal<-c(25040, 25041, 25042, 25043)
+dm_opth<-c(25050, 25051, 25052, 25053)
+dm_neuro<-c(25060, 25061, 25062, 25063)
+dm_circ<-c(25070, 25071, 25072, 25073)
+dm_unsp<-c(25090, 25091)
+dm_other<-c(25080, 25081, 25082, 25083, 25092, 25093)
+dm_longterm_ICD9<-list(dm_renal, dm_opth, dm_neuro, dm_circ, dm_unsp,dm_other)
+rm(dm_renal, dm_opth, dm_neuro, dm_circ, dm_unsp,dm_other)
+uncontrolled_dm<-c(25002, 25003)
+#leau include procedure codes
+leau<-c(8410, 8412, 8414, 8415, 8416, 8417, 8418,8419)
+#back to conditions
+lower_ulc_infl_inf<-c(4540, 7071, 6806, 680.7, 6811, 6826, 6827, 71105, 71106, 71107, 73005,73006, 73007, 73015, 73016, 73017, 73025, 73026, 73027, 73035, 73036, 73037, 73085, 73086, 73087, 73095, 73096, 73097, 7854)
+hypogl<-c(2510,2511,2512,2703, 7750, 7756, 9623, 25880, 2598, 2727, 68100, 7071,7072, 7073,7074,7075, 7076, 7077, 7078, 7079, 73000, 7301, 7302, 7318, 2503)
+diab_COMP_ICD9<-list(leau, lower_ulc_infl_inf, hypogl)
+rm(leau, lower_ulc_infl_inf, hypogl)
+#ICD9, Diabetes Comorbidities
+acute_coronory<-c(4110,4111, 4118, 41181,41189)
+acute_myocardial<-c(410, 41001, 41002,4101, 41011,41012,4102,41021,41022, 4103, 41031, 41032, 4104, 41041,
+41042, 4105, 41051, 41052, 4106, 41061, 41062, 4107, 41071, 41072, 4108,41081, 41082, 4109, 41091, 41092, 41189)
+angina<-c(4111, 4131, 4139, 7865, 78651, 78652, 78659)
+arrythmia<-c(42741, 42742, 42760, 42761, 42769, 42781, 42789, 4279, 7850, 7851, 7853)
+CABG_carot_claudic_revasc<-c(4331, 43311, 4333, 43331, 4359, 36234, 3812, 395, 397, 399, 063, 361, 3610, 3611, 3612, 3613, 3614, 3615, 3616, 3617, 3619, 362, 3420, 4270, 4273, 4274, 4275, 4278, 4279, 4280, 4281, 4282, 4283, 4284, 4289, 4340, 4350, 5184, 5185, 5570, 5579, 5609, 5933, 5939, 7810, 9970, 9971, 9973, 9974, 9975, 9985, 5933, 5939, 7810, 9970, 9971, 9973, 9974, 9975, 9985, 34200, 34201, 34202, 34210, 34211, 34212, 34212, 34280, 34281, 34282, 34290, 34291, 34292, 36234, 36812, 42731, 42732, 42741, 42742, 42781, 42789, 42820, 42821, 42822, 42823, 42830, 42831, 42832, 42833, 42840, 42841, 42842, 42843, 43300, 43301, 43310, 43311, 43320, 43321, 43330, 43331, 43380, 43381, 43390, 43391, 43400, 43401, 43410, 43411, 43490, 43491, 43810, 43811, 43812, 43813, 43814, 43814, 43819, 43819, 43820, 43821, 43822, 43830, 43831, 43832, 43840, 43841, 43842, 43850, 43851, 43852, 43853, 43881, 43882, 43883, 43884, 43885, 43889, 99700, 99701, 99702, 99709, 4439)
+
+#stroke ICD9 34200, 34201, 34202, 34203, 34210, 34211, 34212, 34280, 34281, 34282, 34290, 34291, 34292, 36234, 36812, 42731, 42732, 42741, 42742, 42781, 42789, 42820, 42821, 42822, 42823, 42830, 42831, 42832, 42833, 42840, 42841, 42843, 42843, 43300, as.numeric(paste0(433, 00:99), as.numeric(paste0(434, 00:99), as.numeric(paste0(438, 10:89), as.numeric(paste0(518, 51:53), 78191, 78192, 78193, 78194, 78199, 99700, 99701, 99702, 99709, 99731, 99732, 99739, 99741, 99749, 99771, 99772, 99779, 99851, 99859,)
+
+#procedure codes
+surgical_revasc<-c(3925, 3929, 3808, 3816, 3818)
+#condition codes
+heart_fail<-c(4280, 4281, 42820, 42821, 42822, 42823, 42830, 42831, 42832, 42833, 42840, 42841, 42842, 42843, 4289)
+pad_pvd<-c(25070, 25071, 25072, 25073, 44021, 4423, 44381, 4439, 8921, 0400, 44422, 70710, 70711, 70712, 70713, 70714, 70715, 70719, 7854)
+stroke<-c(430, 431, 4320, 4321, 4329, 43301, 43311, 43321, 43331, 43381, 43391, 43401, 43411, 43491, 43391, 43401, 43411, 43491, 436, "V1254")
+
+
+depress<-c(26920, 29622, 29623, 29630, 29623, 29630, 29632, 29633, 30000, 30001, 30002, 30009, 30021, 30022, 30023, 30029, 3003, 3004, 3006, 3007, 30081, 30082, 30089, 3009, 3080, 3081, 3082, 3083, 3084, 3089, 3090, 3091, 30924, 30928, 30929, 3093, 3094, 30981, 30982, 30983, 30989, 3099, 311, "V6284", "E9500", "E9501", "E9502", "E9503", "E9504", "E9505", "E9506", "E9507", "E9508", "E9509", "E9510", "E9511", "E9511", "E9518", "E9520", "E9521", "E9528", "E9529","E9530", "E9531", "E9538", "E9539", "E954", "E9950", "E9551", "E9552", "E9554", "E9555", "E9556", "E9559", "E956", "E9570", "E9571", "E9572", "E9579", "E9580", "E9581", "E9582", "E9583", "E9584", "E9585", "E9587", "E9588")
+depress_excl<-c(29600, 29603, 29604, 29610, 29613, 29614, 29624, 29634, 29640, 29641, 29642, 29643, 29644, 29650, 29652, 29653, 29654, 29660, 29662, 29663, 29664, 2967, 29680, 29690, 29699, 29500, 29501, 29502, 29503, 29504, 29505, 29510, 29511, 29512, 29513, 29515, 29520, 29521, 29522, 29523, 29524, 29530, 29531, 29532, 29533, 29534, 29535, 29540, 29541, 29542, 29543, 29544, 29545, 29550, 29553, 29554, 29560, 29560, 29562, 29563, 29564, 
+29565, 29570, 29571, 29572, 29573, 29574, 29575, 29580, 29582, 29583, 29584, 29585, 29590, 29591, 29592, 29593, 29595, 2970, 2971, 2972, 2973, 2978, 2980, 2981, 2982, 2983, 2984, 2988,2989)
+#use depress_excl to remove cases of depression that aren't correct
+diab_COMORBID_ICD9<-list(acute_coronory, acute_myocardial, angina, arrythmia, CABG_carot_claudic_revasc, surgical_revasc, heart_fail, pad_pvd, stroke, depress)
+rm(acute_coronory, acute_myocardial, angina, arrythmia, CABG_carot_claudic_revasc, surgical_revasc, heart_fail, pad_pvd, stroke, depress)
+#ICD9, Not Diabetes Related ? maybe use major diagnostic code
+#from https://www.hcup-us.ahrq.gov/db/vars/sedddistnote.jsp?var=injury, hcup ICD-9 diagnosis codes used to identify injury discharges
+injury_sub_ICD9<-c(800:909, 910:994)
+injury_ICD9<-c(9092, 9094, 9099, 9949, 9995, 99951:99959, 99580:99585)
+injury_exc_ICD9<-c(9093, 9095, 9950:9954, 9950, 9954, 996, 9957, 99586, 99589, 996:999)
+```
+
+```{r}
+ketoacidosis<-c("E1010", "E1011", "E10641")
+dm_coma_hyperosmo<-c("E1065", "E1100", "E1101", "E11641", "E1165")
+dm_shorterm_ICD10<-list(ketoacidosis,dm_coma_hyperosmo)
+rm(keto,dm_coma_hyperosmo)
+dm_renal<-c("E1021", "E1022", "E1029", "E1121", "E1122", "E1129")
+dm_opth<-c("E10311", "E10319", "E10321", "E10329", "E10331", "E10339", "E10341", "E10349", "E10351", "E10359", "E1036", "E1039", "E11311", "E11319", "E11321", "E11329", "E1131", "E11339", "E11341", "E11349", "E11351", "E11359", "E1136", "E1139",)
+dm_neuro<-c("E1040", "E1041", "E1042", "E1043", "E1044", "E1049",  "E1140", "E1141", "E1142", "E1143", "E1144", "E1149")
+dm_circ<-c("E1051", "E1052", "E1059", "E10610", "E10618", "E10620", "E10621", "E10622", "E10628","E1151", "E1152", "E1159", "E11610", "E11618", "E11620", "E11622", "E11628",)
+dm_unsp<-c("E1069", "E108", "E11630", "E11638")
+dm_other<-c("E10630", "E10638", "E1169", "E118")
+#procedure codes
+leau<-c("0Y620ZZ", "0Y630ZZ", "0Y640ZZ", "0Y670ZZ", "0Y680ZZ", "0Y6C0Z1", "0Y6C0Z2", "0Y6C0Z3", "0Y6D0Z1", "0Y6D0Z2", "0Y6D0Z3", "0Y6F0ZZ", "0Y6G0ZZ", "0Y6H0Z1", "0Y6H0Z2", "0Y6H0Z3", "0Y6J0Z1", "0Y6J0Z2", "0Y6J0Z3", "0Y6M0Z0", "0Y6M0Z4", "0Y6M0Z5", "0Y6M0Z6", "0Y6M0Z7", "0Y6M0Z8", "0Y6M0Z9", "0Y6M0ZB", "0Y6M0ZC", "06YM0ZD", "06YM0ZF", "06YN0Z0", "0Y6N0Z4", "0Y6N0Z5", "0Y6N0Z6", "0Y6N0Z7", "0Y6N0Z8", "0Y6N0Z9", "0YN0ZB", "0Y6N0ZC", "0Y6N0ZD", "0Y6N0ZF", "0Y6P0Z0", "0Y6POZ1", "0Y6POZ2", "0Y6P0Z3", "0Y6Q0Z0", "0Y6Q0Z1", "0Y6Q0Z2", "0Y6Q0Z3", "0Y6R0Z0", "0Y6R0Z1", "0Y6R0Z2", "0Y6R0Z3", "0Y6S0Z1", "0Y6S0Z2", "0Y6S0Z3", "0Y6T0Z0", "0Y6T0Z1", "0Y6T0Z2", "0Y6T0Z3", "0Y6U0Z0", "0Y6U0Z1", "0Y6U0Z2", "0Y6U0Z3", "0Y6V0Z0", "0Y6V0Z1", "0Y6V0Z2", "0Y6V0Z3", "0Y6W0Z0", "0Y6W0Z1", "0Y6W0Z2", "0Y6W0Z3", "0Y6X0Z0", "0Y6X0Z1", "0Y6X0Z2", "0Y6X0Z3", "0Y6Y0Z0", "0Y6Y0Z1", "0Y6Y0Z2", "0Y6Y0Z3", "0Y6TZ0", "0Y6T0Z1", "0Y6T0Z2", "0Y6T0Z3", "0Y6U0Z0", "0Y6U0Z1", "0Y6U0Z2", "0Y6U0Z3", "0Y6C0Z1", "0Y6C0Z2", "0Y6C0Z3", "0Y620ZZ", "0Y6J0Z1", "0Y6J0Z2", "0YJ0Z3")
+#diagnosis codes
+lower_ulc_infl_inf<-c("I183009", "183019", "183029", "L97909", "L02429", "L02439", "L02439", "L02629", "L02639", "L03039", "L03049", "L03129", "L03119", "L03119", "L03129", "M00059", "M00159", "M00259", "M00859", "M00069", "M00169", "M00269", "M00869", "M0007909", "M00179", "M00279", "M00879", "M86159", "M86259", "M86169", "M86269", "M86179", "M86279", "M86669", "M86679", "M869", "M90859", "M90869", "M90879", "I96")
+#exclude and use Ginde et al. algorithm to describe
+hypogl<-c("E15", "E160", "E161", "E162", "E710", "E71120", "E7119", "E712", "P700", "P701", "P704", "T383X1A", "T383X2A", "T383X3A", "T383X4A", "E11618", "E11620", "E11621", "E11622", "E11628", "E11630", "E11638","E11649", "E1165", "E1169", "E348", "E7521", "E7522", "E75249", "E770", "E771", "L03029", "E11618", "E11620", "E11621", "E11622", "E11628", "E11630", "E11638", "E11649", "E1165", "L921", "L942", "L988", "M8610", "M8620", "M8660", "M869", "M9080", "E11641", "E1011", "E10641", "E1101", "E1165", "E1011", "E1065")
+acute_coronory<-c("I240", "I248", "I249")
+acute_myocardial<-c("I21", "I210", "I211", "I212", "I213", "I214", "I219", "I22", "I220", "I221", "I228", "I229", "I23", "I230", "I231", "I232", "I233", "I234", "I235", "I236", "I238")
+angina<-c("I200", "I201", "I208", "I209", "R071", "R072", "R0781", "R0782", "R0789", "R079")
+arrythmia<-c("I4901", "I4902", "I491", "I492", "I493", "I4940", "I4949", "I495", "I498", "I499", "R000", "R001", "R002", "R008", "R009")
+CABG_carot_claudic_revasc<-c("I63139", "I63239", "I658", "I6359", "G459", "I67848", "H3400", "I63019", "I63119", "I63139", "I6320", "I63219", "I6322", "I63239", "I6330", "I6340", "I6350", "I63509", "I651", "I6529", "I659", "I69898", as.character(paste0("I699", 20:98), "I97710", "I97790", "I97811", "I97821", "I9788", "I9789", "J810", "J951", "J952", "J953", "J95821", "J95822", "J95851", "J95859", "J9588", "J9600", "J9620", "K559", "K5660", "K6811", "K913", "K9181", "K9182", "K9183", "K9186", "K9189", "N135", "N289", "N9989", "R250", "R253", "R259", "R29890", "T81710A", "T81711A", "T81718A", "T8172XA", "T81710A", "T81711A", "T81718A", "T8172XA"))
+CABG_proccode<-c("03CH0ZZ", "03CH3ZZ", "03CH4ZZ", "03CJ0ZZ", "03CH3ZZ", "03CJ4ZZ", "03CK0ZZ", "03CK3ZZ", "03CK4ZZ", "03CL0ZZ", "03CL3ZZ", "03CL4ZZ", "03CM0ZZ", "03CM3ZZ", "03CM4ZZ", "03CN0ZZ", "03CN3ZZ", "03CN4ZZ", "03CP0ZZ", "03CP3ZZ", "03CP4ZZ", "03CQ0ZZ", "03CQ3ZZ", "03CQ4ZZ", "03CR0ZZ", "03CR3ZZ", "03CR4ZZ", "03CS0ZZ", "03CS3ZZ", 
+"03CS4ZZ", "03CT0ZZ", "03CT0ZZ", "03CT3ZZ", "O3CT4ZZ", 
+"03CU0ZZ", "03CU3ZZ", "03CU4ZZ", "03CV3ZZ", "03CV4ZZ", 
+" I7051", "I70511", "I70512", "I70518", "I70519", 
+"I7061A", "I7071", "I7041", "I7031", "I7021", "I878", "I739", as.character(paste0("G819", 0:4)), "G9781", "G9782", "I509", "I6359", "I658", "I6609", "I6619", "I6629", "I669", "I69928", "I69998", "J9689", "K550", "R001", as.character(paste0("G81", 00:04)), as.character(paste0("G81", 10:14)), "G970", "H3400", "H53129", "I469", "I471", "I4891", "I4892", "I4901", "I4902", "I495", "I498", "I499",             as.character(paste0("I50", 1:4)),                       as.character(paste0("I50", 20:43)))
+#CABG_intracran<-ifelse(substring(ICD_10, 1, 3)%in% S04, 1,0)
+#CABG_bypass<-ifelse(substring(ICD_10, 1, 3) %in% c(021, 031, 041, 051, 061), 1,0)
+#CABG_excision<-ifelse(substring(ICD_10, 1, 3) %in% c(04B, 04C, 04H, 04J, 04L, 04N, 04P, 04Q, 04R, 04S, 04U, 04V, 04W), 1,0)
+#CABG_excision1<-ifelse(substring(ICD_10, 1, 4) %in% c(045K, 045L, 045M, 045N, 045P, 045Q, 045R, 045S, 045T, 045U, 045V, 045W, 045Y, 1,0)
+surgical_revasc<-c()
+heart_fail<-c("I501", "I5020", "I5021", "I5022", "I5023", "I5030", "I5031", "I5032", "I5033", "I5040", "I5041", "I5042", "I5043", "I509")
+pad_pvd<-c(as.character(paste0("E10", C(51,52,59,621))), 
+               as.character(paste0("E11", C(51,52,59,621))),
+               as.character(paste0("E13", C(51,52,59,621))),
+"I724", as.character(paste0("I7021", C(1,2,3,8,9))), "I7389", as.character(paste0("S913", C(51,52,59,621)), "A480", "i743", "I96")
+               )
+#pad_foot_ICD10<- ifelse(substring(ICD_10, 1, 5) == "S9134" , 1,0)
+#pad_emb_ICD10<- ifelse(substring(ICD_10, 1, 3) == "L97" , 1,0)
+stroke<-c("I6000", "I6001", "I6002", "I6010", "I6011", "I6012", "I6020", "I6021", "6022", "I6030", "I6031", "I6032", "I604", "I6050", "I6051", "I6052", "I606", "I606", "I607", "I6789", "I608", "I609", "I610","I611", "I612", "I613", "I614", "I615", "I616", "I618", "I619", "I6200", "I6201", "I6202", "I6203", "I621", "I629", "I6300", "I63011", "I63012", "I63019", "I6302", "I63031", "I63032", "I63039", "I6309", "I6310", "I63111", "I63112", "I63119", "I6312", "I63131", "I63132", "I63139", "I6319", "I6320", "I63211", "I63219", "I6322", "I63231", "I63232", "I63239", "I6329", "I6330", "I63311", "I63312", "I63319", "I63321", "I63322", "I63329", "I63331", "I63332", "I63339", "I63341", "I63342", "I63349", "I6339", "I6340", "I63411", "I63412", "I63419", "I63421", "I63422", "I63429", "I63431", "I63432", "I63439", "I63441", "I63442", "I63449", "I6349", "I6350", "I63511", "I63512", "I63519", "I63521", "I63522", "I63529", "I63531", "I63532", "I63539", "I63541", "I63542", "I63549", "I6359", "I636", "I638", "I639") 
+#pad_icd_footICD10<- ifelse(substring(ICD_10, 1, 3) == "S9134" , 1,0)
+depress<-c("F321", "F322", "F329", "F331", "F332", "F419", "F410", "F411", "F418", "F4001", "F4002", "F4010", "F40250", "F40241", "F408", "F42", "F341", "F481", "F4521", "F4522", "F450", "F451", "F459", "F458", "F488", "F489", "F99", "F430", "R457", "F4321", "F4322", "F4323", "F4329", "F948", "F4324", "F4325", "F4310", "F4312", "F438", "F4320", "F329", "R45851",)
+#depress_drown<-ifelse(substring(ICD_10, 1,3) %in% c("X71", "X72", "X73", "X74", "X75", "X76", "X77", "X78", "X79", "X80", "X81", "X82") , 1,0)
+#depress_excl_2<-ifelse(substring(ICD_10, 1,3) %in% c("F39", "F22", "F24", "F23", "F28", "F29"),1,0)
+#depress_excl_3<-ifelse(substring(ICD_10, 1,4) %in% c("F301", "F302", "F323", "F333", "F311", "F312", "F313", "F314", "F315", "F316", "F319", "F348", "F208", "F201", "F202", "F200", "F208", "F205", "F259", "F209"),1,0)
+#depress_excl_4<-ifelse(substring(ICD_10, 1,4) == "F4489", 1,0)
+
+retinopathy<-c(as.character(paste0("E10", 340:349)), 
+               as.character(paste0("E11", 340:349)),
+               as.character(paste0("E13", 340:349)),
+               as.character(paste0("E10", 350:359)),
+               as.character(paste0("E11", 350:359)),
+               as.character(paste0("E13", 350:359)),
+               as.character(paste0("H33", 000:999)),
+               as.character(paste0("H330", 0:9)),
+               as.character(paste0("H3535", 0:9)),
+               as.character(paste0("H358", 0:9)),
+               "H359",
+               as.character(paste0("H431", 00:99)),
+               as.character(paste0("H431", 000:999)),
+               as.character(paste0("H431", 00:99))
+               )
+#create new for blindness, add into retinopathy/diabetes-related
+#blindness<-ifelse(substring(ICD_10, 1, 3=="H54", 1,0))
+nephropathy<-c(as.character(paste0("E10", 21)), 
+              as.character(paste0("E10", 22)),
+              as.character(paste0("E10", 29)),
+              as.character(paste0("E11", 21)), 
+              as.character(paste0("E11", 22)),
+              as.character(paste0("E11", 29)),
+              as.character(paste0("E13", 21)), 
+              as.character(paste0("E13", 22)),
+              as.character(paste0("E13", 29)),
+              as.character(paste0("N00", 1:9)),
+              as.character(paste0("N04", 1:9)),
+              "N181", "N182", "N184", "N185", "N186",
+              "N189", "N19"))
+neuropathy<-c(as.character(paste0("E10", 40:49)), 
+              as.character(paste0("E11", 22)),
+              as.character(paste0("E13", 29)),
+              "G9009", "G908", "G909", "G990", 
+              as.character(paste0("G56", 1:9)),
+              as.character(paste0("G56", 11:99)),
+              as.character(paste0("G57", 1:9)),
+              as.character(paste0("G57", 11:99)),
+              "G609", "G733", "G9001",
+              as.character(paste0("H49", 1:9)),
+              as.character(paste0("H49", 11:99)),
+              as.character(paste0("H49", 11:99)),
+              "I951", "K3184", "K591", "N319", 
+              as.character(paste0("M146", 1:9)),
+              as.character(paste0("M146", 11:99)),
+              as.character(paste0("M146", 111:999)),
+              as.character(paste0("S04", 1:9)))
+#create new for INJURY OF CRANIAL, add into retinopathy/diabetes-related
+#cran_nerve<-ifelse(substring(ICD_10, 1, 3=="S04", 1,0))
+#retinopathy<-ifelse(crane_nerve==1, retinopathy==1, retinopathy),
+diab_COMP_ICD10<-list(leau, lower_ulc_infl_inf, hypogl)
+rm(leau, lower_ulc_infl_inf, hypogl)
+
+dm_longterm_ICD10<-list(dm_renal, dm_opth, dm_neuro, dm_circ, dm_unsp,dm_other)
+rm(dm_renal, dm_opth, dm_neuro, dm_circ, dm_unsp,dm_other)
+diab_COMORBID_ICD10<-list(acute_coronory, acute_myocardial, angina, arrythmia, CABG_carot_claudic_revasc, surgical_revasc, heart_fail, pad_pvd, stroke, depress)
+rm(acute_coronory, acute_myocardial, angina, arrythmia, CABG_carot_claudic_revasc, surgical_revasc, heart_fail, pad_pvd, stroke, depress)
+
+```
+
+
+```{r}
+v<-readRDS("C:/Users/teg83/Documents/hcup_data/hcup_obj/SID_obj/az_sidc_2008.RDS")
+u<-readRDS("C:/Users/teg83/Documents/hcup_data/hcup_diab/SID_diab_obj/az_sidc_2008_diab.RDS")
+u<-subset(u, diab==1&adult==1)
+u
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+```
+
