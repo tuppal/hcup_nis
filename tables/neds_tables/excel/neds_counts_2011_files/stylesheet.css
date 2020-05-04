@@ -48,16 +48,10 @@ td
 .xl65
 	{mso-style-parent:style0;
 	font-weight:700;
-	text-align:left;
-	vertical-align:middle;
-	white-space:normal;}
-.xl66
-	{mso-style-parent:style0;
-	font-weight:700;
 	text-align:right;
 	vertical-align:middle;
 	white-space:normal;}
-.xl67
+.xl66
 	{mso-style-parent:style0;
 	font-weight:700;
 	border-top:none;
@@ -65,38 +59,30 @@ td
 	border-bottom:1.0pt solid black;
 	border-left:none;
 	white-space:normal;}
-.xl68
+.xl67
 	{mso-style-parent:style0;
 	text-align:left;
-	white-space:normal;
-	padding-left:18px;
-	mso-char-indent-count:2;}
-.xl69
+	white-space:normal;}
+.xl68
 	{mso-style-parent:style0;
 	mso-number-format:"\#\,\#\#0";
 	text-align:right;
 	white-space:normal;}
+.xl69
+	{mso-style-parent:style0;
+	mso-number-format:"0\.0";}
 .xl70
 	{mso-style-parent:style0;
-	mso-number-format:0%;
-	text-align:left;
+	mso-number-format:"0\.0";
+	border-top:none;
+	border-right:none;
+	border-bottom:1.0pt solid black;
+	border-left:none;
 	white-space:normal;}
 .xl71
 	{mso-style-parent:style0;
-	mso-number-format:Percent;
-	text-align:left;
-	white-space:normal;}
-.xl72
-	{mso-style-parent:style0;
-	text-align:left;
-	white-space:normal;}
-.xl73
-	{mso-style-parent:style0;
 	text-align:center;}
-.xl74
-	{mso-style-parent:style0;
-	mso-number-format:"0\.0";}
-.xl75
+.xl72
 	{mso-style-parent:style0;
 	text-align:left;
 	border-top:1.0pt solid black;
@@ -104,11 +90,38 @@ td
 	border-bottom:none;
 	border-left:none;
 	white-space:normal;}
+.xl73
+	{mso-style-parent:style0;
+	font-weight:700;
+	text-align:left;
+	vertical-align:middle;
+	white-space:normal;}
+.xl74
+	{mso-style-parent:style0;
+	mso-number-format:0%;
+	text-align:left;
+	white-space:normal;}
+.xl75
+	{mso-style-parent:style0;
+	text-align:left;
+	white-space:normal;
+	padding-left:18px;
+	mso-char-indent-count:2;}
 .xl76
 	{mso-style-parent:style0;
-	mso-number-format:"0\.0";
+	mso-number-format:Percent;
+	text-align:left;
+	white-space:normal;}
+.xl77
+	{mso-style-parent:style0;
+	color:black;
+	font-weight:700;
 	border-top:none;
 	border-right:none;
 	border-bottom:1.0pt solid black;
 	border-left:none;
+	white-space:normal;}
+.xl78
+	{mso-style-parent:style0;
+	text-align:right;
 	white-space:normal;}

@@ -6,7 +6,8 @@ output: html_document
 ```{r}
 user<-Sys.info()["user"]
 if(user=="teg83"){
-neds_diab_path<-paste0(repo, "/data/hcup_diab/NEDS_diab_obj")
+  #fix this!
+neds_diab_path<-paste0("C:/Users/teg83/Documents/hcup_data/hcup_diab/NEDS_diab_obj")
 neds_diab_obj<-dir(neds_diab_path)
   }
 neds_diab_obj
@@ -14,7 +15,7 @@ neds_diab_obj
 x<-readRDS(file=paste0(neds_diab_path, "/", neds_diab_obj[2]))
 x<-update(x,
           all=1)
-
+#define path for NEDS data
 neds_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_obj"
 neds_adult_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_adult_obj"
 neds_obj<-dir(neds_path)
@@ -45,6 +46,7 @@ neds_count_obj_path<-(paste0(repo, neds_count_obj))
 
 
 ```{r}
+#define function to generate NEDS counts
 count_table_neds<-function(x){
 yr<-x$variables$YEAR[1]
 x<-update(x,  all=1,
@@ -136,11 +138,11 @@ x<-update(x,  all=1,
           #|substring(I10_DX5, 1,3) %in% c("E10", "E11", "E13"), 1, 0)), print("nvm")))
           
 ifelse("PL_NCHS2006" %in% colnames(x$variables), 
-             x<-update(x, UR=ifelse(PL_NCHS2006==1, "Central Metro", ifelse(PL_NCHS2006==2, "Fringe Metro", ifelse(PL_NCHS2006==3, "Metro 250,000-999,999", ifelse(PL_NCHS2006==4, "Counties of 50,000-249,999",ifelse(PL_NCHS2006==5, "Micropolitan", ifelse(PL_NCHS2006==6, "Not Metro or Micropolitan", "")))))),  UR_RUR=ifelse(PL_NCHS2006==1|PL_NCHS2006==2|PL_NCHS2006==3|PL_NCHS2006==4|PL_NCHS2006==5, "Urban", ifelse(PL_NCHS2006==6, "Rural", "Other"))), 
+             x<-update(x, UR=ifelse(PL_NCHS2006==1, "Central Metro", ifelse(PL_NCHS2006==2, "Fringe Metro", ifelse(PL_NCHS2006==3, "Metro 250,000-999,999", ifelse(PL_NCHS2006==4, "Counties of 50,000-249,999",ifelse(PL_NCHS2006==5, "Micropolitan", ifelse(PL_NCHS2006==6, "Not Metro or Micropolitan", "")))))),  UR_RUR=ifelse(PL_NCHS2006==1|PL_NCHS2006==2|PL_NCHS2006==3|PL_NCHS2006==4, "Urban", ifelse(PL_NCHS2006==5|PL_NCHS2006==6, "Rural", "Other"))), 
 
        ifelse("PL_NCHS" %in% colnames(x$variables),
               x<-update(x, UR=ifelse(PL_NCHS==1, "Central Metro", ifelse(PL_NCHS==2, "Fringe Metro", ifelse(PL_NCHS==3, "Metro 250,000-999,999", ifelse(PL_NCHS==4, "Metro 50,000-249,999", ifelse(PL_NCHS==5, "Micropolitan", ifelse(PL_NCHS==6, "Not Metro or Micropolitan", "")))))),
-                      UR_RUR=ifelse(PL_NCHS==1|PL_NCHS==2|PL_NCHS==3|PL_NCHS==4|PL_NCHS==5, "Urban", ifelse(PL_NCHS==6, "Rural", "Other")))))
+                      UR_RUR=ifelse(PL_NCHS==1|PL_NCHS==2|PL_NCHS==3|PL_NCHS==4, "Urban", ifelse(PL_NCHS==5|PL_NCHS==6, "Rural", "Other")))))
 
 yr<-mean(x$variables$YEAR)
 saveRDS(x, file=paste0(neds_diab_path, "/", "neds_", yr, "_diab.RDS"))
@@ -209,7 +211,6 @@ return(all_ed_count)
 ```
 
 ```{r}
-
 #find diab-ed counts
 #create path for tables
 setwd(repo)
@@ -234,6 +235,7 @@ cat(y, file=paste0("count_",yr,".html"))
 
 
 ```{r}
+#define function to find NIS counts
 count_table_nis<-function(x){
 x<-update(x,  all=1,
               SEX=ifelse(FEMALE==1, "Female", "Male"),
@@ -253,8 +255,7 @@ x<-update(x,  all=1,
                                ifelse(HOSP_REGION==3, "South",
                                       ifelse(HOSP_REGION==4, "West", "")))),
 
-              RACE_co=ifelse(RACE==1, "White, Non-Hispanic",
-                             ifelse(RACE==2, "Black, Non-Hispanic", ifelse(RACE==3, "Hispanic, any race", "Other"))))
+              RACE_co=ifelse(RACE==1, "White, Non-Hispanic", ifelse(RACE==2, "Black, Non-Hispanic", ifelse(RACE==3, "Hispanic, any race", ifelse(RACE %in% c(4:6), "Other", NA)))))
 
 #to be added
 #              diab_COMP=ifelse(DX1 %in%           |,
@@ -326,12 +327,13 @@ x<-update(x,  all=1,
           #|substring(I10_DX4, 1,3) %in% c("E10", "E11", "E13")
           #|substring(I10_DX5, 1,3) %in% c("E10", "E11", "E13"), 1, 0)), print("nvm")))
           
+          
 ifelse("PL_NCHS2006" %in% colnames(x$variables), 
-             x<-update(x, UR=ifelse(PL_NCHS2006==1, "Central Metro", ifelse(PL_NCHS2006==2, "Fringe Metro", ifelse(PL_NCHS2006==3, "Metro 250,000-999,999", ifelse(PL_NCHS2006==4, "Counties of 50,000-249,999",ifelse(PL_NCHS2006==5, "Micropolitan", ifelse(PL_NCHS2006==6, "Not Metro or Micropolitan", "")))))),  UR_RUR=ifelse(PL_NCHS2006==1|PL_NCHS2006==2|PL_NCHS2006==3|PL_NCHS2006==4|PL_NCHS2006==5, "Urban", ifelse(PL_NCHS2006==6, "Rural", "Other"))), 
+             x<-update(x, UR=ifelse(PL_NCHS2006==1, "Central Metro", ifelse(PL_NCHS2006==2, "Fringe Metro", ifelse(PL_NCHS2006==3, "Metro 250,000-999,999", ifelse(PL_NCHS2006==4, "Counties of 50,000-249,999",ifelse(PL_NCHS2006==5, "Micropolitan", ifelse(PL_NCHS2006==6, "Not Metro or Micropolitan", "")))))),  UR_RUR=ifelse(PL_NCHS2006==1|PL_NCHS2006==2|PL_NCHS2006==3|PL_NCHS2006==4, "Urban", ifelse(PL_NCHS2006==5|PL_NCHS2006==6, "Rural", "Other"))), 
 
        ifelse("PL_NCHS" %in% colnames(x$variables),
               x<-update(x, UR=ifelse(PL_NCHS==1, "Central Metro", ifelse(PL_NCHS==2, "Fringe Metro", ifelse(PL_NCHS==3, "Metro 250,000-999,999", ifelse(PL_NCHS==4, "Metro 50,000-249,999", ifelse(PL_NCHS==5, "Micropolitan", ifelse(PL_NCHS==6, "Not Metro or Micropolitan", "")))))),
-                      UR_RUR=ifelse(PL_NCHS==1|PL_NCHS==2|PL_NCHS==3|PL_NCHS==4|PL_NCHS==5, "Urban", ifelse(PL_NCHS==6, "Rural", "Other")))))
+                      UR_RUR=ifelse(PL_NCHS==1|PL_NCHS==2|PL_NCHS==3|PL_NCHS==4, "Urban", ifelse(PL_NCHS==5|PL_NCHS==6, "Rural", "Other")))))
 
 yr<-mean(x$variables$YEAR)
 #saveRDS(x, file=paste0(neds_diab_path, "neds_", yr, "_diab.RDS"))
@@ -415,17 +417,11 @@ nis_count_obj<-paste0("/objects", "/",filename)
 nis_count_obj_path<-(paste0(repo, nis_count_obj))
 
 nis_diab_path<-(paste0(repo, "/data/hcup_diab/NIS_diab_obj"))
-nis_ip_obj<-dir(nis_diab_path)
+nis_diab_obj<-dir(nis_diab_path)
 results_path<-paste0(repo, "/tables/nis_tables/adult_diab")
 
-x<-readRDS(file=paste0(nis_diab_path, "/", nis_ip_obj[3]))
-y<-count_table_nis(x)
-yr<-mean(x$variables$YEAR)
-setwd(results_path)
-cat(y, file=paste0("count_", yr,".html"))
-
 for(i in(1:4)){
-x<-readRDS(file=paste0(nis_diab_path, "/", nis_ip_obj[i]))
+x<-readRDS(file=paste0(nis_diab_path, "/", nis_diab_obj[i]))
 y<-count_table_nis(x)
 yr<-mean(x$variables$YEAR)
 setwd(results_path)
@@ -433,119 +429,376 @@ cat(y, file=paste0("count_",yr,".html"))
 }
 ```
 
+
 ```{r}
-#find diabad counts
-neds_diabad_path<-"H:/Job/Merck/HCUP_data/hcup_diab/NEDS_diab_ad_obj/"
-neds_diabad_obj<-dir(neds_diabad_path)
-neds_diabad_obj
+#define function to find SID counts
+count_table_sid<-function(x){
+x<-x%>%
+  mutate(all=1,
+  SEX=ifelse(FEMALE==1, "Female", "Male"),
+#              INS=ifelse(PAY1==1&PAY2==2|PAY1==2&PAY2==1, #"Medicare and Medicaid", ifelse(PAY1==1, "Medicare", ifelse(PAY1==2, "Medicaid",
+#                ifelse(PAY1==3, "Private", ifelse(PAY1==4, #"Self-Pay", "Other"))))),
+  INS=ifelse(PAY1==1, "Medicare", ifelse(PAY1==2, "Medicaid", ifelse(PAY1==3, "Private", ifelse(PAY1==4, "Self-Pay", "Other")))),
+  AGE_STD=ifelse(AGE>=18 & AGE<30, "18-29",
+                ifelse(AGE>=30 & AGE<45, "30-44",
+                ifelse(AGE>=45 & AGE<65, "45-64",
+                ifelse(AGE>=65 & AGE<74, "65-74",
+                ifelse(AGE>=74, "75+", NA))))),
+  DATA=paste0(st, "_", yr))
+              #DISP=ifelse(DISP_ED==9, "Admitted", ifelse(DISP_ED==2|DISP_ED==5, "Transfer", ifelse(DISP_ED==1, "Routine", "Other"))),
+              #IP_ind=ifelse(DISP_IP==1|DISP_IP==2|DISP_IP==5|DISP_IP==6|DISP_IP==7|DISP_IP==20|DISP_IP==99|DISP=="Admitted", 1,0),
+              #IP=ifelse(IP_ind==1, "Admitted", "Not Admitted"),
+if("RACE" %in% colnames(x)==T){
+  x<- x%>%mutate(
+RACE_co=ifelse(RACE==1, "White, Non-Hispanic", ifelse(RACE==2, "Black, Non-Hispanic", ifelse(RACE==3, "Hispanic, any race", ifelse(RACE %in% c(4:6), "Other", NA)))))
+} else if ("RACE_X" %in% colnames(x)==T){
+    x<- x%>%mutate(
+RACE_co=ifelse(RACE_X==1, "White, Non-Hispanic", ifelse(RACE_X==2, "Black, Non-Hispanic", ifelse(RACE_X==3, "Hispanic, any race", ifelse(RACE_X %in% c(4:6), "Other", NA)))))
+} else {print("next")}
 
-x<-readRDS(file=paste0(neds_diab_path, neds_diab_obj[1]))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_diabad_path, "neds_", yr, "_ad.RDS"))
+#to be added
+#              diab_COMP=ifelse(DX1 %in%           |,
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          ifelse(DX1 %in%         |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                         ), 
+#                         ifelse(DX1 %in%          |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          )),
+#              diab_COMORB=ifelse(DX1 %in%         |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          ifelse(DX1 %in%         |
+#                         DX2 %in%                 |
+#                          DX3 %in%                |
+#                         DX4 %in%                 |
+#                          DX5 %in%                , 
+#                          ), 
+#                          ifelse(DX1 %in%         |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          )),
+#              non_diab=ifelse(DX1 %in%            |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          ifelse(DX1 %in%         |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          ), 
+#                          ifelse(DX1 %in%         |
+#                          DX2 %in%                |
+#                          DX3 %in%                |
+#                          DX4 %in%                |
+#                          DX5 %in%                , 
+#                          ))
+#          )
 
-x<-readRDS(file=paste0(neds_diab_path, neds_diab_obj[2]))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_diabad_path, "neds_", yr, "_ad.RDS"))
+#if we want to add diabetes as an indicator here
+#ifelse("DX1" %in% colnames(x$variables),
+       #x<-update(x, 
+        #diab = ifelse(substring(DX1, 1,3) %in% 250
+          #|substring(DX2, 1,3) %in% 250
+          #|substring(DX3, 1,3) %in% 250
+          #|substring(DX4, 1,3) %in% 250
+          #|substring(DX5, 1,3) %in% 250, 1,0)),
+#ifelse("I10_DX1" %in% colnames(x$variables), 
+       #x<-update(x,
+        #diab = ifelse(substring(I10_DX1, 1,3) %in% c("E10", "E11", "E13")
+          #|substring(I10_DX2, 1,3) %in% c("E10", "E11", "E13")
+          #|substring(I10_DX3, 1,3) %in% c("E10", "E11", "E13")
+          #|substring(I10_DX4, 1,3) %in% c("E10", "E11", "E13")
+          #|substring(I10_DX5, 1,3) %in% c("E10", "E11", "E13"), 1, 0)), print("nvm")))
 
-x<-readRDS(file=paste0(neds_diab_path, neds_diab_obj[3]))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_diabad_path, "neds_", yr, "_ad.RDS"))
 
-x<-readRDS(file=paste0(neds_diab_path, neds_diab_obj[4]))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_diabad_path, "neds_", yr, "_ad.RDS"))
+if("PL_NCHS2006" %in% colnames(x)){
+  x<- x%>%
+   mutate(UR_RUR=ifelse(PL_NCHS2006==1|PL_NCHS2006==2|PL_NCHS2006==3|PL_NCHS2006==4, "Urban", ifelse(PL_NCHS2006==5|PL_NCHS2006==6, "Rural", "Other")))
+} else if("PL_NCHS" %in% colnames(x)){
+  x<- x%>%
+    mutate(UR_RUR=ifelse(PL_NCHS==1|PL_NCHS==2|PL_NCHS==3|PL_NCHS==4, "Urban", ifelse(PL_NCHS==5|PL_NCHS==6, "Rural", "Other")))
+yr<-mean(x$variables$YEAR)}
+return(x)}
+#set location for objects and count objects
+setwd(paste0(repo, objects_path))
+filename<-"sid_count_obj"
+folder<-paste0("./",filename)
+dir.create(folder)
+sid_count_obj<-paste0("/objects", "/",filename)
+sid_count_obj_path<-(paste0(repo, sid_count_obj))
+sid_diab_path<-(paste0(repo, "/data/hcup_diab/SID_diab_obj"))
+sid_diab_obj<-dir(sid_diab_path)
+setwd(paste0(repo, "/tables"))
+filename<-"sid_tables"
+folder<-paste0("./",filename)
+dir.create(folder)
+setwd(paste0(repo, "/tables/", filename))
+filename<-"adult_diab"
+folder<-paste0("./",filename)
+dir.create(folder)
+results_path<-paste0(repo, "/tables/sid_tables/adult_diab")
 
-results_path<-"C:/Users/TUPPAL/merck/hcup_NIS/neds_tables/adult_diab_ad"
-for(i in(1:4)){
-x<-readRDS(file=paste0(neds_diabad_path, substring(neds_diabad_obj[i], 1,9), "_ad.RDS"))
-y<-count_table(x)
-yr<-mean(x$variables$YEAR)
-setwd(results_path)
-cat(y, file=paste0("adult_char",yr,".html"))
+
+#define function to find percentage of missing observations
+sid_miss<-function(x){
+p_missing <- unlist(lapply(x, function(x) sum(is.na(x))))/nrow(x)*100
+p_missing<-sort(p_missing[p_missing > 0], decreasing = TRUE)
+x_missing<-as.data.frame(p_missing, paste0(sid_diab_obj[i]))
+colnames(x_missing)<-paste0(st, "_", yr)
+missing<-t(x_missing)
+missing<-as.data.frame(missing)
+return(missing)
 }
+
+#define function to find count of visits per group
+sid_count<-function(x){
+c_age<-count(x$AGE_STD)
+c_sex<-count(x$SEX)
+c_sex<-c_sex[1:2,]
+if("RACE_co" %in% colnames(x)){
+if(x$RACE_miss==0){
+c_race<-count(x$RACE_co)
+c_race<-c_race[1:4,]
+c_race<-c_race[c(4, 1:3),]
+}else{
+c_race<-data.frame(x=c("White", "Non-Hispanic Black", "Non-Hispanic Hispanic, any race", "Other"), freq=c("-"))
+}
+}else{print("next")}
+if(x$UR_RUR_miss==0){
+c_rur<-count(x$UR_RUR)
+c_rur<-c_rur[1:2,]
+}else{
+c_rur<-data.frame(x=c("Rural", "Urban"), freq=c("-"))
+}
+if(x$INS_miss==0){
+c_ins<-count(x$INS)
+c_ins<-c_ins[1:5,]
+}else{
+c_ins<-data.frame(x=c("Medicaid", "Medicare", "Other", "Private", "Self-Pay"), freq=c("-"))
+}
+if("RACE_co" %in% colnames(x)){
+count<-rbind(c_age, c_sex, c_race, c_rur, c_ins)
+}else{count<-rbind(c_age, c_sex, c_rur, c_ins)}
+colnames(count)<-c("Variables", "n of ED visits")
+return(count)
+}
+
+#define function to clean count tables
+clean_ct<-function(x){
+  if(race==1){
+  x<-knitr::kable(x, caption=paste("Number of diabetes-related ED Visits in", st, "-", yr), digits=1, format.args = list(big.mark = ",", 
+  scientific = FALSE,  align = "c", padding=3))%>%
+    kable_styling( full_width= T) %>%
+              pack_rows("Age", 1,5)%>%
+              pack_rows("Sex", 6,7)%>%
+              pack_rows("Race", 8,11)%>%
+              pack_rows("Urban/Rural", 12,13)%>%
+              pack_rows("Insurance", 14, 18) 
+return(x)    
+  }else{
+  x<-knitr::kable(x, caption=paste("Number of diabetes-related ED Visits in", st, "-", yr), digits=1, format.args = list(big.mark = ",", 
+  scientific = FALSE,  align = "c", padding=3))%>%
+    kable_styling( full_width= T) %>%
+              pack_rows("Age", 1,5)%>%
+              pack_rows("Sex", 6,7)%>%
+              pack_rows("Urban/Rural", 8, 9)%>%
+              pack_rows("Insurance", 10, 14) 
+    
+  }
+}
+
+
+```
+```{r}
+#define function to bind missing
+rbind.miss<- function(datalist) {
+  require(plyr)
+  temp <- rbind.fill(datalist)
+  rownames(temp) <- unlist(lapply(datalist, row.names))
+  temp
+}
+#generate check for proportion of missing variables across all datasets
+miss_check<- data.frame(matrix(ncol = 0, nrow = 0))
+x<-readRDS(file=paste0(sid_diab_path, "/", sid_diab_obj[1]))
+st<-toupper(substring(sid_diab_obj[1], 1,2))
+yr<-mean(x$YEAR)
+x<-count_table_sid(x)
+z<-sid_miss(x)
+miss_check<-z
+miss_check
+for(i in (2:44)){
+x<-readRDS(file=paste0(sid_diab_path, "/", sid_diab_obj[i]))
+st<-toupper(substring(sid_diab_obj[i], 1,2))
+yr<-mean(x$YEAR)
+x<-count_table_sid(x)
+z<-sid_miss(x)
+miss_check<-rbind.miss(list(miss_check,z))
+}
+
+miss_check <- select(miss_check, -c(RACE, PL_NCHS2006, PAY1, PAY2))
+miss_check
+miss_ident<-miss_check  %>% 
+                      mutate(RACE_miss=ifelse(RACE_co>=1, 1, 0)) %>%
+                      mutate(UR_RUR_miss=ifelse(UR_RUR>=1, 1, 0)) %>%
+                      mutate(INS_miss=ifelse(INS>=1, 1, 0)) %>%
+            select(-c(FEMALE, PL_NCHS, RACE_co, UR_RUR, SEX, INS)) %>%
+            setDT(., keep.rownames = "DATA")%>%       mutate(RACE_miss=ifelse(is.na(RACE_miss), 0, RACE_miss)) %>%    mutate(UR_RUR_miss=ifelse(is.na(UR_RUR_miss), 0, UR_RUR_miss)) %>% mutate(INS_miss=ifelse(is.na(INS_miss), 0, INS_miss)) 
+```
+
+```{r}
+#mi
+x<-readRDS(file=paste0(sid_diab_path, "/", sid_diab_obj[22]))
+x<-count_table_sid(x)
+x$RACE_co
+x$RACE
+mi_clean <-function(x){
+  x<-x %>%
+    mutate(
+    RACE_b=ifelse(x$RACE==2, 1, 0),
+    RACE_h=ifelse(x$RACE==3, 1, 0),
+    RACE_a=ifelse(x$RACE==4, 1, 0),
+    RACE_n=ifelse(x$RACE==5, 1, 0),
+    RACE_o=ifelse(x$RACE==6, 1, 0),
+    )
+
+}
+install.packages("Amelia")
+install.packages("mice")
+library(mice)
+install.packages("VIM")
+library(VIM)
+x<-x %>%
+  select(-PAY2)
+x_chck<-x[,c("RACE", "FEMALE", "UR_RUR", "AGE_STD", "PAY1")]
+mice_plot <- aggr(x_chck, col=c('maroon', 'navy'),
+                    numbers=TRUE, sortVars=TRUE,
+                    labels=names(x_chck), cex.axis=1,
+                    gap=3, ylab=c("Missing data","Pattern"))
+
+system.time(
+ mice<-mice(x, m=5, maxit=50, method= 'pmm', seed=500)))
 ```
 
 
+```{r}
+#time spent to generate 1 imputed dataset
+#divide 3442.78 seconds by 60 to get in minutes
+3442.78/60
+#57.38 minutes
+#multiply by 88 for each of our datasets, divide by 60 to get hours
+(57.38*88)/60
+#84.16 hrs for all of our datasets
+
+#for datasets with missing >1%
+(57.38*38)/60
+#36.34 hrs for those missing >1%
+
+#for datasets with missing >5% (recommended)
+(57.38*6)/60
+#6 hrs for those missing >1%
+
+```
+
 
 ```{r}
-results_path<-"C:/Users/TUPPAL/merck/hcup_NIS/neds_tables/adult_desc"
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[1], 1,9), "_ip.RDS"))
-y<-count_table(x)
-yr<-mean(x$variables$YEAR)
+miss_check
+miss_ind
+for(i in (1:44)){
+x<-readRDS(file=paste0(sid_diab_path, "/", sid_diab_obj[i]))
+st<-toupper(substring(sid_diab_obj[i], 1,2))
+yr<-mean(x$YEAR)
+race<-ifelse("RACE" %in% colnames(x)==T|"RACE_X" %in% colnames(x)==T, 1,0)
+x<-count_table_sid(x)
+x<-merge(x, miss_ident, by="DATA", type="left")
+assign(paste0(substring(sid_diab_obj[i], 1,12), "_count"), sid_count(x))
+y<-as.tibble(assign(paste0(substring(sid_diab_obj[i], 1,12), "_count"), sid_count(x)))
+saveRDS(assign(paste0(substring(sid_diab_obj[i], 1,12), "_count"), sid_count(x)), file=paste0(sid_count_obj_path, "/", substring(sid_diab_obj[i], 1,12), "_count.RDS"))
+y<-clean_ct(y)
 setwd(results_path)
-cat(y, file=paste0("adult_char",yr,".html"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[2], 1,9), "_ip.RDS"))
-y<-count_table(x)
-yr<-mean(x$variables$YEAR)
-setwd(results_path)
-cat(y, file=paste0("adult_char",yr,".html"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[3], 1,9), "_ip.RDS"))
-y<-count_table(x)
-yr<-mean(x$variables$YEAR)
-setwd(results_path)
-cat(y, file=paste0("adult_char",yr,".html"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[4], 1,9), "_ip.RDS"))
-y<-count_table(x)
-yr<-mean(x$variables$YEAR)
-setwd(results_path)
-cat(y, file=paste0("adult_char",yr,".html"))
-```
-
-```{r}
-neds_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_obj"
-neds_adult_path<-"H:/Job/Merck/HCUP_data/hcup_obj/NEDS_adult_obj"
-neds_obj<-dir(neds_path)
-neds_obj
-neds_ip_path<-"H:/Job/Merck/HCUP_data/NEDS_ed_ip/"
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[1], 1,9), "_ip.RDS"))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_ip_path, "neds_", yr, "_ad.RDS"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[2], 1,9), "_ip.RDS"))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_ip_path, "neds_", yr, "_ad.RDS"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[3], 1,9), "_ip.RDS"))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_ip_path, "neds_", yr, "_ad.RDS"))
-
-x<-readRDS(file=paste0(neds_ip_path, substring(neds_obj[4], 1,9), "_ip.RDS"))
-yr<-mean(x$variables$YEAR)
-x<-subset(x, IP_ind==1)
-saveRDS(x, file=paste0(neds_ip_path, "neds_", yr, "_ad.RDS"))
+cat(y, file=paste0(st, "_count_",yr,".html"))
+rm(x,y,st,yr, race)
+}
+colnames(x)
 
 ```
 
 
+
+
 ```{r}
-nis_2008<-readRDS(paste0(nis_diab_path, substring(nis_obj[1], 1,8), "_diab.RDS"))
-nis_2011<-readRDS(paste0(nis_diab_path, substring(nis_obj[2], 1,8), "_diab.RDS"))
-nis_2014<-readRDS(paste0(nis_diab_path, substring(nis_obj[3], 1,8), "_diab.RDS"))
-nis_2016<-readRDS(paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
+age_dx1<-crosstab(x, row.vars=c("AGE_STD"), col.vars="dxreason", type= c("f", "c"), style="long")
+sex_dx1<-crosstab(x, row.vars=c("SEX"), col.vars="dxreason", type= c("f", "c"), style="long")
+RACE_co_dx1<-crosstab(x, row.vars=c("RACE_co"), col.vars="dxreason", type= c("f", "c"), style="long")
+UR_RUR_dx1<-crosstab(x, row.vars=c("UR_RUR"), col.vars="dxreason", type= c("f", "c"), style="long")
+
+age_dx1
+sex_dx1
+RACE_co_dx1
+UR_RUR_dx1
+
+
+count(x$dxreason2)
+age_dx1<-crosstab(x, row.vars=c("AGE_STD"), col.vars="inj_type", type= c("f", "c"), style="long")
+sex_dx1<-crosstab(x, row.vars=c("SEX"), col.vars="inj_type", type= c("f", "c"), style="long")
+RACE_co_dx1<-crosstab(x, row.vars=c("RACE_co"), col.vars="inj_type", type= c("f", "c"), style="long")
+UR_RUR_dx1<-crosstab(x, row.vars=c("UR_RUR"), col.vars="inj_type", type= c("f", "c"), style="long")
+
+x$both<-ifelse(x$inj_any==1 & x$dm_com==1, 1,0)
+count(x$both)
+x$boths<-ifelse(x$inj_any==1 & x$spec==1, 1,0)
+count(x$boths)
+68/190
+all<-count(x$inj_type)
+all<-all[1:5,]
+all<-all%>%
+  mutate(prop=paste0("(", round(freq/sum(freq)*100, digits=0), "%", ")"))
+all
+
+count(x$dxreason2)
+
+b<-subset(x, both==1)
+both<-count(b$inj_type)
+both<-both[1:5,]
+both<- both%>%
+  mutate(prop=paste0("(", round(freq/sum(freq)*100, digits=0), "%", ")"))
+both
+
+bs<-subset(x, boths==1)
+both_spec<-count(bs$inj_type)
+both_spec<-both_spec[1:4,]
+both_spec<- both_spec%>%
+  mutate(prop=paste0("(", round(freq/sum(freq)*100, digits=0), "%", ")"))
+both_spec
 ```
 
 
 ```{r}
+miss_issue<-subset(miss_ident,rowSums(miss_ident[,2:4])>0)
+miss_issue1<-subset(miss_check,rowSums(miss_check[,1:3])>1)
+miss_race<-subset(miss_check, RACE_co>5)
+miss_check<-select(miss_check, -c(FEMALE, SEX, PL_NCHS))
+dim(miss_ident)
 ```
 
 
 ```{r}
-```
 
-
-```{r}
 ```
 
 

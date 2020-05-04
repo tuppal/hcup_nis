@@ -159,6 +159,15 @@ prop_se<-function(tot){
   return(b)
 }
 
+count_se<-function(tot){
+  tot<-as.data.frame(tot)
+  tot$all<-round(tot[,2], digits=0)
+  tot$se<-round(tot[,3], digits=0)
+  var_name<-colnames(tot)[1]
+  colnames(tot)<-c("Variable", "n of events", "se")
+  return(tot)}
+
+
 ?svyby
 #function to generate demographic characteristics using BRFSS data
 char<-function(x){
@@ -171,9 +180,9 @@ char<-function(x){
   colnames(var)<- c("Characteristics", "n", "%")
   return(var)
 }
+user<-Sys.info()["user"]
 
-
-if(Sys.info()["user"]=="TUPPAL"){
+if(user=="TUPPAL"){
   repo<- "C:/Users/TUPPAL/merck/hcup_nis"
   data_path <- "H:/Job/Merck/HCUP_data/hcup_sas/sid_sas/"
   nis_list <- dir(data_path)
@@ -219,9 +228,7 @@ if(Sys.info()["user"]=="TUPPAL"){
 }
 
 getwd()
-if(Sys.info()["user"]=="teg83"){
-  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
-  data_path <- paste0(repo, "Data")
+if(user=="teg83"){
   nis_list <- dir(data_path)
   az_sid<- paste0(data_path, "AZ_c")
   fl_sid<- paste0(data_path, "FL_c")
@@ -235,7 +242,7 @@ if(Sys.info()["user"]=="teg83"){
   ut_sid<- paste0(data_path, "UT_c")
   vt_sid<- paste0(data_path, "VT_c")
   
-  data_path <- "C:/Users/TUPPAL/merck/sedd/"
+  data_path <- "C:/Users/teg83/Documents/GitHub/hcup_nis/data/"
   nis_list <- dir(data_path)
   az_sedd<- paste0(data_path, "AZ_c")
   fl_sedd<- paste0(data_path, "FL_c")
@@ -262,9 +269,32 @@ if(Sys.info()["user"]=="teg83"){
   NEDS_2011<- paste0(neds_path, "2011")
   NEDS_2014<- paste0(neds_path, "2014")
   NEDS_2016<- paste0(neds_path, "2016")
+  
+  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
+  data_path <- paste0(repo, "/data")
+  neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
+  neds_diab_obj<-dir(neds_diab_path)
+  
+  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
+  data_path <- paste0(repo, "/data")
+  neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
+  neds_diab_obj<-dir(neds_diab_path)
+  
+  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
+  data_path <- paste0(repo, "/data")
+  neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
+  neds_diab_obj<-dir(neds_diab_path)
+  
+  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
+  data_path <- paste0(repo, "/data")
+  neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
+  neds_diab_obj<-dir(neds_diab_path)
+  
+  
 }
 
-if(Sys.info()["user"]=="starsdliu"){
+
+if(user=="starsdliu"){
   repo<- "/Users/starsdliu/Desktop/Rollins School of Public Health Research/Diabetes Program - Dr. Ali and Teg/MEPS Data/MEPS/ACSC_ED"
   data_path <- paste0(repo, "Data")
   nis_list <- dir(fc_path)

@@ -29,7 +29,7 @@ for (i in (1:5)){
 }
 
 brfss_r<-dir(brfss_obj)
-x<-readRDS(paste0(brfss_obj, "/", brfss_r[5]))
+x<-readRDS(paste0(brfss_obj, "/", brfss_r[3]))
 
 var_11<-c("X_STATE", "X_STSTR", "X_PSU","X_LLCPWT",
 #raking variable; sex by age
@@ -98,10 +98,26 @@ colnames(x)
 
 x<-x[var_17]
 yr<-as.character(x$IYEAR[1])
+
+brfss_miss<-count(brfss$MSCODE)
+brfss_miss<-brfss_miss%>%
+  mutate(prop=paste0(round((freq/sum(freq))*100, digits=1), "%"))
+
+brfss_miss
+sum(59327+34700+35245+62484)
+
+x_chck<-x[,c("X_IMPRACE", "SEX", "MSCODE", "X_AGE80")]
+x$AGE
+mice_plot <- aggr(x_chck, col=c('maroon', 'navy'),
+                    numbers=TRUE, sortVars=TRUE,
+                    labels=names(x_chck), cex.axis=1,
+                    gap=3, ylab=c("Missing data","Pattern"))
 ```
 
 
 ```{r }
+rm(list = ls(all.names = TRUE))
+
 options( survey.lonely.psu = "adjust" )
 yr<-as.character(x$IYEAR[1])
 
@@ -153,7 +169,7 @@ brfss_design<-update(
              levels = c(1,2,3,4),
              labels= c("Less than HS", "HS Grad", "Some College", "College Grad")),
   
-  EDU1=ifelse(X_L\LCPM03==1, "Did not graduate High School", ifelse(X_LLCPM03==2, "High school graduate", ifelse(X_LLCPM03==3|X_LLCPM03==4, "Some college or college graduate", NA))),
+  EDU1=ifelse(X_LLCPM03==1, "Did not graduate High School", ifelse(X_LLCPM03==2, "High school graduate", ifelse(X_LLCPM03==3|X_LLCPM03==4, "Some college or college graduate", NA))),
   
   REGION=ifelse(state_name %in% c("CONNECTICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", "VERMONT", "NEW JERSEY", "NEW YORK", "PENSYLVANIA"), "Northeast", ifelse(state_name %in% c("ILLINOIS", "INDIANA", "MICHIGAN", "OHIO", "WISCONSON", "IOWA", "KANSAS", "MINNESOTA", "MISSOURI", "NEBRASKA", "NORTH DAKOTA", "SOUTH DAKOTA"), "Midwest", ifelse(state_name %in% c("DELAWARE", "FLORIDA", "GEORGIA", "MARYLAND", "NORTH CAROLINA", "SOUTH CAROLINA", "VIRGINIA", "DISTRICT OF COLUMBIA", "WEST VIRGINIA", " ALABAMA", "KENTUCKY", "MISSISSIPPI", "TENNESSEE", "ARKANSAS", "LOUISIANA", "OKLAHOMA", "TEXAS"), "South", ifelse(state_name %in% c("ARIZONA", "COLORADO", "IDAHO", "MONTANA", "NEVADA", "NEW MEXICO", "UTAH", "WYOMING", "ALASKA", "CALIFORNIA", "HAWAII", "OREGON", "WASHINGTON"), "West", NA)))),
   
