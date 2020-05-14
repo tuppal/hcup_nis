@@ -1,0 +1,137 @@
+knitr::opts_chunk$set(echo = TRUE)
+if(!require(knitr)){
+  install.packages("knitr")
+  library(knitr)
+}
+if(!require(comorbidity)){
+  install.packages("comorbidity")
+  library(comorbidity)
+}
+if(!require(readxl)){
+  install.packages("readxl")
+  library(readxl)
+}
+if(!require(digest)){
+  install.packages("digest")
+  library(digest)
+}
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+if(!require(pheatmap)){
+  install.packages("pheatmap")
+  library(pheatmap)
+}
+if(!require(tidyverse)){
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if(!require(prodlim)){
+  install.packages("prodlim")
+  library(prodlim)
+}
+if(!require(recipes)){
+  install.packages("recipes")
+  library(recipes)
+}
+if(!require(data.table)){
+  install.packages("data.table")
+  library(data.table)
+}
+if(!require(RColorBrewer)){
+  install.packages("RColorBrewer")
+  library(RColorBrewer)
+}
+if(!require(foreign)){
+  install.packages("foreign")
+  library(foreign)
+}
+if(!require(tidyverse)){
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if(!require(plyr)){
+  install.packages("plyr")
+  library(plyr)
+}
+if(!require(summarytools)){
+  install.packages("summarytools")
+  library(summarytools)
+}
+if(!require(survey)){
+  install.packages("survey")
+  library(survey)
+}
+if(!require(dsr)){
+  install.packages("dsr")
+  library(dsr)
+}
+if(!require(kableExtra)){
+  install.packages("kableExtra")
+  library(kableExtra)
+}
+if(!require(magrittr)){
+  install.packages("magrittr")
+  library(magrittr)
+}
+if(!require(scales)){
+  install.packages("scales")
+  library(scales)
+}
+if(!require(openxlsx)){
+  install.packages("openxlsx")
+  library(openxlsx )
+}
+if(!require(surveydata)){
+  install.packages("surveydata")
+  library(surveydata )
+}
+if(!require(margins)){
+  install.packages("margins")
+  library(margins )
+}
+if(!require(car)){
+  install.packages("car")
+  library(car )
+}
+if(!require(agricolae)){
+  install.packages("agricolae")
+  library(agricolae )
+}
+if(!require(etm)){
+  install.packages("etm")
+  library(etm )
+}
+if(!require(popEpi)){
+  install.packages("popEpi")
+  library(popEpi )
+}
+if(!require(Epi)){
+  install.packages("Epi")
+  library(Epi )
+}
+if(!require(survival)){
+  install.packages("survival")
+  library(survival )
+}
+if(!require(data.table)){
+  install.packages("data.table")
+  library(data.table )
+}
+if(!require(haven)){
+  install.packages("haven")
+  library(haven )
+}
+if(!require(haven)){
+  install.packages("parallel")
+  library(parallel)
+}
+if(!require(mi)){
+  install.packages("mi")
+  library(parallel)
+}
+if(!require(VIM)){
+  install.packages("VIM")
+  library(parallel)
+}

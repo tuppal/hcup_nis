@@ -8,35 +8,9 @@ acs_path<-paste0(data_path, "/acs/acs_obj")
 acs_obj<-dir(acs_path)
 
 x<-readRDS(paste0(acs_path, "/", acs_obj[1]))
-colnames(x)
-drop<-startsWith(colnames(x), "REP")
-x[drop]<-NULL
 #no nas? check coding of variables in ddi
-```
 
-```{r}
-count(x$STATEICP)
-#none missing
-count(x$QSEX)
-#none missing
-count(x$QRACE)
-#3264 missing, approx 0.1% of sample 
-3264/nrow(x)*100
-count(x$QHINSCAI)
-#43558 missing, approx 1.45% of sample
-43558/nrow(x)*100
-count(x$HCOVPRIV)
-#27110 missing, approx 0.9% of sample
-27110/nrow(x)*100
-count(x$QHINSCAR)
-count(x$QEDUC)
-count(x$QINCWAGE)
 
-head(x$COUNTYFIP)
-count(x$STATEFIP)
-count(x$COUNTYFIP)
-1312456/nrow(x)*100
-count(x$METRO)
 ```
 
 ```{r}
@@ -80,6 +54,8 @@ x<-setnames(x, "METROPUMA03","urb_ind")
 x<-merge(x,rur_puma_10, by=c("STATEFIP", "PUMA"), all.x=T, all.y=F)
 x<-setnames(x, "METROPUMA13","urb_ind")
 }
+
+
 ```
 
 

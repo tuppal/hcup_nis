@@ -229,46 +229,47 @@ if(user=="TUPPAL"){
 
 getwd()
 if(user=="teg83"){
-  nis_list <- dir(data_path)
-  az_sid<- paste0(data_path, "AZ_c")
-  fl_sid<- paste0(data_path, "FL_c")
-  ia_sid<- paste0(data_path, "IA_c")
-  ky_sid<- paste0(data_path, "KY_c")
-  md_sid<- paste0(data_path, "MD_c")
-  nc_sid<- paste0(data_path, "NC_c")
-  ne_sid<- paste0(data_path, "NE_c")
-  nj_sid<- paste0(data_path, "NJ_c")
-  ny_sid<- paste0(data_path, "NY_c")
-  ut_sid<- paste0(data_path, "UT_c")
-  vt_sid<- paste0(data_path, "VT_c")
-  
   data_path <- "C:/Users/teg83/Documents/GitHub/hcup_nis/data/"
-  nis_list <- dir(data_path)
-  az_sedd<- paste0(data_path, "AZ_c")
-  fl_sedd<- paste0(data_path, "FL_c")
-  ia_sedd<- paste0(data_path, "IA_c")
-  ky_sedd<- paste0(data_path, "KY_c")
-  md_sedd<- paste0(data_path, "MD_c")
-  nc_sedd<- paste0(data_path, "NC_c")
-  ne_sedd<- paste0(data_path, "NE_c")
-  nj_sedd<- paste0(data_path, "NJ_c")
-  ny_sedd<- paste0(data_path, "NY_c")
-  ut_sedd<- paste0(data_path, "UT_c")
-  vt_sedd<- paste0(data_path, "VT_c")
+#these codes are used for inital download
+#  nis_list <- dir(data_path)
+#  az_sid<- paste0(data_path, "AZ_c")
+#  fl_sid<- paste0(data_path, "FL_c")
+#  ia_sid<- paste0(data_path, "IA_c")
+#  ky_sid<- paste0(data_path, "KY_c")
+#  md_sid<- paste0(data_path, "MD_c")
+#  nc_sid<- paste0(data_path, "NC_c")
+#  ne_sid<- paste0(data_path, "NE_c")
+#  nj_sid<- paste0(data_path, "NJ_c")
+#  ny_sid<- paste0(data_path, "NY_c")
+#  ut_sid<- paste0(data_path, "UT_c")
+#  vt_sid<- paste0(data_path, "VT_c")
   
-  nis_path <- "H:/Job/Merck/HCUP_data/hcup_sas/nis_sas/NIS/"
-  nis_list <- dir(nis_path)
-  NIS_2008<- paste0(nis_path, "2008_c")
-  NIS_2011<- paste0(nis_path, "2011_c")
-  NIS_2014<- paste0(nis_path, "2014_c")
-  NIS_2016<- paste0(nis_path, "2016_c")
+#  nis_list <- dir(data_path)
+#  az_sedd<- paste0(data_path, "AZ_c")
+#  fl_sedd<- paste0(data_path, "FL_c")
+#  ia_sedd<- paste0(data_path, "IA_c")
+#  ky_sedd<- paste0(data_path, "KY_c")
+#  md_sedd<- paste0(data_path, "MD_c")
+#  nc_sedd<- paste0(data_path, "NC_c")
+#  ne_sedd<- paste0(data_path, "NE_c")
+#  nj_sedd<- paste0(data_path, "NJ_c")
+#  ny_sedd<- paste0(data_path, "NY_c")
+#  ut_sedd<- paste0(data_path, "UT_c")
+#  vt_sedd<- paste0(data_path, "VT_c")
   
-  neds_path <- "H:/Job/Merck/HCUP_data/hcup_sas/neds_sas/"
-  neds_list <- dir(neds_path)
-  NEDS_2008<- paste0(neds_path, "2008")
-  NEDS_2011<- paste0(neds_path, "2011")
-  NEDS_2014<- paste0(neds_path, "2014")
-  NEDS_2016<- paste0(neds_path, "2016")
+#  nis_path <- "H:/Job/Merck/HCUP_data/hcup_sas/nis_sas/NIS/"
+#  nis_list <- dir(nis_path)
+#  NIS_2008<- paste0(nis_path, "2008_c")
+#  NIS_2011<- paste0(nis_path, "2011_c")
+#  NIS_2014<- paste0(nis_path, "2014_c")
+#  NIS_2016<- paste0(nis_path, "2016_c")
+  
+#  neds_path <- "H:/Job/Merck/HCUP_data/hcup_sas/neds_sas/"
+# neds_list <- dir(neds_path)
+# NEDS_2008<- paste0(neds_path, "2008")
+# NEDS_2011<- paste0(neds_path, "2011")
+# NEDS_2014<- paste0(neds_path, "2014")
+# NEDS_2016<- paste0(neds_path, "2016")
   
   repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
   data_path <- paste0(repo, "/data")
@@ -289,7 +290,6 @@ if(user=="teg83"){
   data_path <- paste0(repo, "/data")
   neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
   neds_diab_obj<-dir(neds_diab_path)
-  
   
 }
 
@@ -299,6 +299,9 @@ if(user=="starsdliu"){
   data_path <- paste0(repo, "Data")
   nis_list <- dir(fc_path)
 }
+
+
+resource_path<-paste0(repo, "/resources")
 
 #If not one of the above users, enter user name and location of REPO and remove # to run code
 
