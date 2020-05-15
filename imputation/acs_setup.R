@@ -1,5 +1,4 @@
-source(paste0(repo, "/imputation/cluster_setup"))
-#prep acs 
+#imp_test
 x<-readRDS(paste0(acs_path, "/", acs_obj[1]))
 #no nas? check coding of variables in ddi
 acs_zip<-read_xlsx(paste0(resource_path, "/imputation/acs_zip/acs_zip.xlsx"))
@@ -19,19 +18,19 @@ x$PUMA<-paste0(x$STATEFIP, x$PUMA)
 
 x<-x%>%
   mutate(state_name = factor(STATEICP, levels = 
-                                             c(1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 21, 22, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 40,
-                                               41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53, 54, 56, 61, 62, 63, 64, 65, 66, 67, 
-                                               68, 71, 72, 73, 81, 82, 83, 96, 97, 98, 99),
-                                           labels = c("CONNETICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", 
-                                                      "VERMONT", "DELAWARE", "NEW JERSEY", "NEW YORK", "PENNSYLVANIA", "ILLINOIS", 
-                                                      "INDIANA", "MICHIGAN", "OHIO", "WISCONSIN", "IOWA", "KANSAS", "MINNESOTA", 
-                                                      "MISSOURI", "NEBRASKA", "NORTH DAKOTA", "SOUTH DAKOTA", "VIRGINIA", "ALABAMA",
-                                                      "ARKANSAS", "FLORIDA", "GEORGIA", "LOUISIANA", "MISSISSIPPI", "NORTH CAROLINA",
-                                                      "SOUTH CAROLINA", "TEXAS", "KENTUCKY", "MARYLAND", "OKLAHOMA", "TENNESSEE", 
-                                                      "WEST VIRGINA", "ARIZONA", "COLORADO", "IDAHO", "MONTANA", "NEVADA", 
-                                                      "NEW MEXICO", "UTAH", "WYOMING", "CALIFORNIA", "OREGON", "WASHINGTON",
-                                                      "ALASKA", "HAWAII", "PUERTO RICO", "STATE GROUPINGS", "MIL. RSERVATIONS", 
-                                                      "D.C.", "NOT IDENTIFIED")),
+                               c(1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 21, 22, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 40,
+                                 41, 42, 43, 44, 45, 46, 47, 48, 49, 51, 52, 53, 54, 56, 61, 62, 63, 64, 65, 66, 67, 
+                                 68, 71, 72, 73, 81, 82, 83, 96, 97, 98, 99),
+                             labels = c("CONNETICUT", "MAINE", "MASSACHUSETTS", "NEW HAMPSHIRE", "RHODE ISLAND", 
+                                        "VERMONT", "DELAWARE", "NEW JERSEY", "NEW YORK", "PENNSYLVANIA", "ILLINOIS", 
+                                        "INDIANA", "MICHIGAN", "OHIO", "WISCONSIN", "IOWA", "KANSAS", "MINNESOTA", 
+                                        "MISSOURI", "NEBRASKA", "NORTH DAKOTA", "SOUTH DAKOTA", "VIRGINIA", "ALABAMA",
+                                        "ARKANSAS", "FLORIDA", "GEORGIA", "LOUISIANA", "MISSISSIPPI", "NORTH CAROLINA",
+                                        "SOUTH CAROLINA", "TEXAS", "KENTUCKY", "MARYLAND", "OKLAHOMA", "TENNESSEE", 
+                                        "WEST VIRGINA", "ARIZONA", "COLORADO", "IDAHO", "MONTANA", "NEVADA", 
+                                        "NEW MEXICO", "UTAH", "WYOMING", "CALIFORNIA", "OREGON", "WASHINGTON",
+                                        "ALASKA", "HAWAII", "PUERTO RICO", "STATE GROUPINGS", "MIL. RSERVATIONS", 
+                                        "D.C.", "NOT IDENTIFIED")),
          HISP_c=factor(HISPAN,
                        levels=
                          c(0, 1, 2, 3, 4, 9),
@@ -51,10 +50,10 @@ x<-x%>%
            EDUCD %in% c(65:90, 100:116) ~ "Some College or College Grad"))
 
 prop_white<-function(x){
-var<-count(x$RACE_co=="White, non-hispanic")
-var_t<-var[2,]
-count<-sum(var$freq)
-var_t[,2]/count
+  var<-count(x$RACE_co=="White, non-hispanic")
+  var_t<-var[2,]
+  count<-sum(var$freq)
+  var_t[,2]/count
 }
 x$propw=prop_white(x)
 x$propw
@@ -133,28 +132,5 @@ x<-chck %>%
             prop_black=,
             prop_hispanic=,
             prop_hs=
-            mean_age=mean(AGE),
-            )
-
-
-glimpse(chck)
-gc()
-x
-env
-
-
-x<-readRDS("C:/Users/teg83/Documents/GitHub/hcup_nis/data/hcup_diab/SID_diab_obj/vt_sidc_2014_diab.RDS")vars<-c("PAY1", "RACE", "PL_NCHS", "FEMALE", "AGE")
-
-
-mice_plot<-aggr(x[vars], col=c('navyblue', 'orange'),
-  numbers=T, sortvars=T,
-  labels=names(x[vars]), cex.axis=.7,
-  gap=3, ylab=c("Missing data", "Pattern"))
-
-y<-mi::missing_data.frame(x)
-y[["RACE"]]<-update(y[["RACE"]], "type", list("ordered-categorical"))
-
-show(y)
-
-y<-mi::change(y, y=c("RACE", "PAY1", "PAY2"), what= "type", to = c("unordered-categorical"))
-
+              mean_age=mean(AGE),
+  )

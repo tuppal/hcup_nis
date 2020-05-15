@@ -64,7 +64,6 @@ count_se<-function(tot){
   return(tot)}
 
 
-?svyby
 #function to generate demographic characteristics using BRFSS data
 char<-function(x){
   tot<-svyby(~all, ~x, brfss_design, svytotal)
