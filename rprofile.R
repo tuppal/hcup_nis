@@ -128,6 +128,10 @@ if(!require(haven)){
   install.packages("parallel")
   library(parallel)
 }
+if(!require(srvyr)){
+  install.packages("srvyr")
+  library(srvyr)
+}
 detectCores()
 
 
@@ -291,8 +295,9 @@ if(user=="teg83"){
   neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
   neds_diab_obj<-dir(neds_diab_path)
   
+  acs_path<-paste0(data_path, "/acs/acs_obj")
+  acs_obj<-dir(acs_path)
 }
-
 
 if(user=="starsdliu"){
   repo<- "/Users/starsdliu/Desktop/Rollins School of Public Health Research/Diabetes Program - Dr. Ali and Teg/MEPS Data/MEPS/ACSC_ED"

@@ -63,8 +63,6 @@ count_se<-function(tot){
   colnames(tot)<-c("Variable", "n of events", "se")
   return(tot)}
 
-
-?svyby
 #function to generate demographic characteristics using BRFSS data
 char<-function(x){
   tot<-svyby(~all, ~x, brfss_design, svytotal)
@@ -78,24 +76,20 @@ char<-function(x){
 }
 
   
-  repo<- "/home/tuppal/project/hcup_nis"
+  repo<- "/home/tuppal/project/hcup_aim1"
   data_path <- paste0(repo, "/data")
   neds_diab_path<-paste0(data_path, "/hcup_diab/NEDS_diab_obj")
   neds_diab_obj<-dir(neds_diab_path)
   
-  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
-  data_path <- paste0(repo, "/data")
   nis_diab_path<-paste0(data_path, "/hcup_diab/NIS_diab_obj")
   nis_diab_obj<-dir(nis_diab_path)
   
-  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
-  data_path <- paste0(repo, "/data")
   sedd_diab_path<-paste0(data_path, "/hcup_diab/SEDD_diab_obj")
   sedd_diab_obj<-dir(sedd_diab_path)
   
-  repo<- "C:/Users/teg83/Documents/GitHub/hcup_nis"
-  data_path <- paste0(repo, "/data")
   sid_diab_path<-paste0(data_path, "/hcup_diab/sid_diab_obj")
   sid_diab_obj<-dir(sid_diab_path)
 
   resource_path<-paste0(repo, "/resources")
+  acs_path<-paste0(data_path, "/acs")
+  acs_obj<-dir(acs_path)
