@@ -3,7 +3,7 @@
 # A simple R batch example
 
 #$ -S /bin/bash
-#$ -N hcup_readmission
+#$ -N hcup_aim1_imp
 #$ -o /home/tuppal/project/hcup_aim1/
 #$ -e /home/tuppal/project/hcup_aim1/
 

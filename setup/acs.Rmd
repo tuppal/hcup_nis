@@ -134,12 +134,16 @@ acs_design<-update(
   
   RUR_URB=ifelse(urb_ind==1, "Urban", ifelse(urb_ind==0, "Rural", NA)))#,
 
+
+#setup primary payer information
 #  INS=ifelse(ifelse(HCOVPRIV == 1, "Private", 
 #           ifelse(HINSCARE==1, "Medicare", 
 #           ifelse(HINSCAID==1, "Medicaid/SCHIP",
 #           ifelse(HCOVANY==1, "Uninsured", NA))))
 
 # )
+
+
 return(acs_design)
 }
 acs_design<-acs_clean(acs_design)

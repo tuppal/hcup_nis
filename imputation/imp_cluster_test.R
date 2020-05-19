@@ -1,4 +1,6 @@
-source(paste0(repo, "/imputation/cluster_setup"))
+repo<- "/home/tuppal/project/hcup_aim1"
+path_packages = "/home/tuppal/R/"
+source(paste0(repo, "/imputation/cluster_setup.R"))
 #prep acs 
 x<-readRDS(paste0(acs_path, "/", acs_obj[1]))
 #no nas? check coding of variables in ddi

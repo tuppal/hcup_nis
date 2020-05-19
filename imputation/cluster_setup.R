@@ -4,28 +4,50 @@ r["CRAN"] <- "http://cran.r-project.org"
 options(repos=r)
 })
 
+
 path_packages = "/home/tuppal/R"
 # path_packages = "C:/Cloud/Box Sync/HCUP Data/hcup/packages"
-install.packages(c("knitr","comorbidity","readxl", "digest",
-                   "ggplot2", "tidyverse","prodlim", "data.table", 
-                   "RColorBrewer", "foreign", "tidyverse", "plyr",
-                   "summarytools", "survey", "dsr", "kableExtra", 
-                   "magrittr", "scales", "openxlsx", "surveydata", 
-                   "margins", "car", "agricolae", "etm", "popEpi", 
-                   "Epi", "survival", "data.table", "haven", "parallel"
-                   ), dependencies = TRUE,lib=path_packages)
+# install.packages(c("knitr","readxl", "digest",
+#                    "ggplot2", "plyr","tidyverse","prodlim", 
+#                    "data.table", "foreign", "summarytools", "survey",
+#                    "kableExtra", "openxlsx", "surveydata", "margins",
+#                    "data.table", "haven"), dependencies = TRUE,lib=path_packages)
+                   #"parallel","car", "agricolae", "etm", "popEpi", "Epi", 
+                   #"survival","dsr", #"scales", "RColorBrewer"))
 
+#Packages<- c("knitr","readxl", "digest",
+#             "ggplot2", "plyr","tidyverse","prodlim", 
+#             "data.table", "foreign", "summarytools", "survey",
+#             "kableExtra", "openxlsx", "surveydata", "margins",
+#             "data.table", "haven")
+             #"parallel","car", "agricolae", "etm", "popEpi", "Epi", 
+             #"survival","dsr", #"scales", "RColorBrewer")
+path_packages = "/home/tuppal/R/x86_64-redhat-linux-gnu-library/3.4/"
+install.packages(c("knitr","readxl", "digest", "plyr", "tidyverse",
+                   "data.table", "survey", "kableExtra", "openxlsx",
+                  "data.table"), 
+                 dependencies = TRUE,lib=path_packages)
+.libPaths()
+#invisible(lapply(Packages, library, character.only=T))
+ library(knitr, lib.loc = path_packages)
+ library(readxl, lib.loc = path_packages)
+ library(digest, lib.loc = path_packages)
+# library(ggplot2, lib.loc = path_packages)
+ library(plyr, lib.loc = path_packages)
+ library(tidyverse, lib.loc = path_packages)
+# library(prodlim, lib.loc = path_packages)
+ library(data.table, lib.loc = path_packages)
+# library(foreign, lib.loc = path_packages)
+# library(summarytools, lib.loc = path_packages)
+ library(survey, lib.loc = path_packages)
+# library(kableExtra, lib.loc = path_packages)
+ library(openxlsx, lib.loc = path_packages)
+# library(surveydata, lib.loc = path_packages)
+# library(margins, lib.loc = path_packages)
+ library(data.table, lib.loc = path_packages)
+# library(haven, lib.loc = path_packages)
 
-Packages<- c("knitr","comorbidity","readxl", "digest",
-             "ggplot2", "tidyverse","prodlim", "data.table", 
-             "RColorBrewer", "foreign", "tidyverse", "plyr",
-             "summarytools", "survey", "dsr", "kableExtra", 
-             "magrittr", "scales", "openxlsx", "surveydata", 
-             "margins", "car", "agricolae", "etm", "popEpi", 
-             "Epi", "survival", "data.table", "haven", "parallel")
-
-invisible(lapply(Packages, library, character.only=T))
-
+ 
 
 #function to generate proportions
 perc<-function(x){paste("(",round((x/(sum(x))*100), digits=1),"%",")",sep="")}
@@ -91,5 +113,7 @@ char<-function(x){
   sid_diab_obj<-dir(sid_diab_path)
 
   resource_path<-paste0(repo, "/resources")
-  acs_path<-paste0(data_path, "/acs")
+  acs_path<-paste0(data_path, "/acs/acs_obj")
   acs_obj<-dir(acs_path)
+  acs_5yr_path<-paste0(repo, "/data/acs/acs_5yr")
+  acs_5yr_obj<-dir(acs_5yr_path)

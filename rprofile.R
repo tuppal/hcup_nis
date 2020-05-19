@@ -297,6 +297,8 @@ if(user=="teg83"){
   
   acs_path<-paste0(data_path, "/acs/acs_obj")
   acs_obj<-dir(acs_path)
+  acs_5yr_path<-paste0(repo, "/data/acs/acs_5yr/")
+  acs_5yr_obj<-dir(acs_5yr_path)
 }
 
 if(user=="starsdliu"){

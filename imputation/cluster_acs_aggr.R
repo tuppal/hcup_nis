@@ -1,12 +1,6 @@
-####UPDATE THIS SO THAT IT CAN CYCLE THROUGH ALL STATE AND YEAR COMBINATIONS ####
-###MAYBE WE SHOULDN'T IMPUTE USING MATCHING YEARS, INSTEAD COALESCE 3 or 5-YR ESTIMATES (could use period covered) IN ORDER TO CAPTURE MORE COUNTIES
+###Use cluster to generate 5-YR ESTIMATES by ZIP (could use period covered) IN ORDER TO CAPTURE MORE COUNTIES
 
-
-#x<-readRDS(paste0(acs_path, "/", acs_obj[1]))
-acs_path
-#acs data to be allocated
-#acs_tobeall<-readRDS(paste0(acs_path, "/", acs_obj[1]))
-#use 5 year acs instead
+#acs data to be allocated, using 5 year 
 acs_tobeall<-readRDS(paste0(acs_5yr_path, acs_5yr_obj[1]))
 
 acs_tobeall<-acs_tobeall %>%
@@ -78,99 +72,41 @@ count(acs_tobeall$YEAR)
 
 chck<-subset(acs_tobeall, in_data==1 & YEAR %in% c(2008,2011,2014))
 check_puma<-ifelse(chck$PUMA %in% acs_puma$PUMA, T, F)
-count(check_puma)
-#test this*
-stopifnot(sum(chck_puma==F) =0))
+stopifnot(sum(chck_puma==F)=0))
 
 #create our allocated dataset, to be aggregated - keep all observations in x, so all missing match will not provide values
 acs_tobeaggr<-merge(acs_tobeall, acs_puma, by="PUMA", all.x=T)
 
-#make sure no NAs are present in observations to be allocated
-
-#aggregate to be aggregated data
-#first generate counts by puma
-#puma_count<-acs_tobeaggr %>%
-#  dplyr::filter(state_name=="FLORIDA")%>%
-#  dplyr::arrange(PUMA)%>%
-#  dplyr::mutate(PUMA=as.numeric(PUMA),
-#                whi=ifelse(RACE_co=="White, non-hispanic",1,0),
-#                bla=ifelse(RACE_co=="Black, non-hispanic",1,0),
-#                hisp=ifelse(RACE_co=="Hispanic, any race",1,0),
-#                no_hs=ifelse(EDUCD %in% c(10:61), 1,0),
-#                hs=ifelse(EDUCD %in% c(62:64), 1,0),
-#                coll=ifelse(EDUCD %in% c(65:90, 100:116), 1,0)) %>%
-#  dplyr::group_by(PUMA) %>%
-#  dplyr::summarise(mean_age=mean(AGE),
-#                   n_white= sum(whi),
-#                   n_black= sum(bla),
-#                   n_hisp= sum(hisp),
-#                   n_nohs= sum(no_hs),
-#                   n_hs= sum(hs),
-#                   n_coll= sum(coll),           
-#                   n = n())
-  
-#merge aggregated puma counts by PUMA, select for variables needed to generate aggregated zip counts
-#merge_state<-acs_tobeaggr %>%
-#  dplyr::filter(state_name=="FLORIDA")
-#acs_puma<-merge(merge_state, puma_count, by="PUMA", type="left")
-#acs_puma<-acs_puma %>%
-#  select(c(PUMA, state_name, mean_age, n_white,n_black, n_hisp, n_nohs, n_hs, n_coll, n, ZIP, AFACT))
-
-#acs_unwt_aggr<- acs_puma %>%
-#  dplyr::filter(state_name=="FLORIDA")%>%
-#  dplyr::mutate(AFACT=as.numeric(AFACT),
-#                n=as.numeric(n))%>%
-#  dplyr::arrange(ZIP)%>%
-#  dplyr::group_by(ZIP) %>%
-#  dplyr::summarise(#mean_age=mean(AGE),
-#                   white_afact= sum(n_white*AFACT),
-#                   black_afact= sum(n_black*AFACT),
-#                   hisp_afact= sum(n_hisp*AFACT),
-#                   nohs_afact= sum(n_nohs*AFACT),
-#                   hs_afact= sum(n_hs*AFACT),
-#                   coll_afact= sum(n_coll*AFACT),           
-#                   n = sum(n*AFACT))%>%
-# dplyr::mutate(prop_w=white_afact/n,
-#                prop_b=black_afact/n,
-#                prop_his=hisp_afact/n,
-#                prop_nohs=nohs_afact/n,
-#                prop_hs=hs_afact/n,
-#                prop_coll=coll_afact/n,
-#                med_inc=median(INCWAGE))
-
-#test merging with survey object
-test<-acs_tobeaggr
 #subset for variables to improve processing time
-test<-test %>% select(CLUSTER, STRATA, PERWT, RACE_co, EDUCD, state_name, in_data, PUMA, ZIP, AFACT, AGE)
-
+acs_design<-test %>% select(CLUSTER, STRATA, PERWT, RACE_co, EDUCD, state_name, in_data, PUMA, ZIP, AFACT, AGE)
 
 library(survey)
 library(srvyr)
 #in cluster I believe you would merge the zips into the full file, take the large dataset and push into svy object, then aggregate by zip in syrvr
 #with srvyr
-acs_srvyr<- test%>%
+acs_srvyr<- acs_design%>%
   as_survey_design(ids = CLUSTER, strata= STRATA, weight=PERWT, nest=T)
 detach(package:plyr)
 
 acs_puma_wt<-acs_srvyr %>%
   filter(state_name=="FLORIDA")%>%
   mutate(PUMA=as.numeric(PUMA),
-                whi=ifelse(RACE_co=="White, non-hispanic",1,0),
-                bla=ifelse(RACE_co=="Black, non-hispanic",1,0),
-                hisp=ifelse(RACE_co=="Hispanic, any race",1,0),
-                no_hs=ifelse(EDUCD %in% c(10:61), 1,0),
-                hs=ifelse(EDUCD %in% c(62:64), 1,0),
-                coll=ifelse(EDUCD %in% c(65:90, 100:116), 1,0),
-                all=1) %>%
+         whi=ifelse(RACE_co=="White, non-hispanic",1,0),
+         bla=ifelse(RACE_co=="Black, non-hispanic",1,0),
+         hisp=ifelse(RACE_co=="Hispanic, any race",1,0),
+         no_hs=ifelse(EDUCD %in% c(10:61), 1,0),
+         hs=ifelse(EDUCD %in% c(62:64), 1,0),
+         coll=ifelse(EDUCD %in% c(65:90, 100:116), 1,0),
+         all=1) %>%
   group_by(PUMA) %>%
   summarise(mean_age=survey_mean(AGE),
-                   n_white= survey_total(whi),
-                   n_black= survey_total(bla),
-                   n_hisp= survey_total(hisp),
-                   n_nohs= survey_total(no_hs),
-                   n_hs= survey_total(hs),
-                   n_coll= survey_total(coll),           
-                   n = survey_total(all))
+            n_white= survey_total(whi),
+            n_black= survey_total(bla),
+            n_hisp= survey_total(hisp),
+            n_nohs= survey_total(no_hs),
+            n_hs= survey_total(hs),
+            n_coll= survey_total(coll),           
+            n = survey_total(all))
 
 acs_puma_wt<-as.data.frame(acs_puma_wt$out)%>%
   select(-ends_with("_se"))
@@ -204,6 +140,39 @@ acs_wt_aggr<- acs_puma %>%
                 prop_nohs=nohs_afact/n,
                 prop_hs=hs_afact/n,
                 prop_coll=coll_afact/n)
+
+#test mutating then summing
+test<-acs_puma %>%
+  dplyr::filter(state_name=="FLORIDA")%>%
+  dplyr::mutate(AFACT=as.numeric(AFACT),
+                n=as.numeric(n))%>%
+  dplyr::arrange(ZIP)%>%
+  dplyr::mutate(
+  white_afact1= (n_white*AFACT),
+  black_afact1= (n_black*AFACT),
+  hisp_afact1= (n_hisp*AFACT),
+  nohs_afact1= (n_nohs*AFACT),
+  hs_afact1= (n_hs*AFACT),
+  coll_afact1= (n_coll*AFACT),           
+  n1 = n*AFACT)%>%
+  dplyr::group_by(ZIP) %>%
+  dplyr::summarise(#mean_age=mean(AGE),
+    white_afact= sum(white_afact1),
+    black_afact= sum(black_afact1),
+    hisp_afact= sum(hisp_afact1),
+    nohs_afact= sum(nohs_afact1),
+    hs_afact= sum(hs_afact1),
+    coll_afact= sum(coll_afact1),           
+    n = sum(n1))%>%
+  dplyr::mutate(prop_w=white_afact/n,
+                prop_b=black_afact/n,
+                prop_his=hisp_afact/n,
+                prop_nohs=nohs_afact/n,
+                prop_hs=hs_afact/n,
+                prop_coll=coll_afact/n)
+
+  
+  
 getwd()
 setwd(paste0(repo, "/imputation"))
 dir.create(paste0(repo, "/imputation", "/acs_zip"))
