@@ -1,0 +1,78 @@
+
+### PUTTY ----
+
+mkdir project
+
+qlogin -q qlogin.q
+#Password is same as jvargh7
+
+rm -r project
+
+# Present working directory
+pwd 
+
+# Set working directory
+cd project/hcup
+
+
+### Testing
+
+#### Step 1: Transfer test folder from ~\test to /home/jvargh7/test
+pscp -r "C:\Cloud\Box Sync\HCUP Data\test" jvargh7@hpc5.sph.emory.edu:
+
+#### Step 2: Run normalR.sh
+qsub /home/jvargh7/test/normalR.sh
+
+### Step 3: Transfer files to computer
+##### Helpful: https://docs.ycrc.yale.edu/clusters-at-yale/data/transfer/
+##### Example:
+##### pscp jvargh7@hpc5.sph.emory.edu:/home/jvargh7/Tested/test/normal.out "C:\Cloud\Box Sync\HCUP Data\test"
+pscp -r jvargh7@hpc5.sph.emory.edu:/home/jvargh7/test/out* "C:\Cloud\Box Sync\HCUP Data\jvargh7\test"
+pscp -r jvargh7@hpc5.sph.emory.edu:/home/jvargh7/test/TEST* "C:\Cloud\Box Sync\HCUP Data\jvargh7\test"
+
+### HCUP
+
+#### Step 1: Install packages on cluster
+cat project/hcup/code/cluster_setup.R
+qsub project/hcup/code/cluster_setupR.sh
+source("project/hcup/code/cluster_setup.R")
+ls packages
+
+#### Step 2: Transfer files to cluster
+pscp -r "C:\Cloud\Box Sync\HCUP Data\jvargh7\project\hcup" jvargh7@hpc5.sph.emory.edu:project
+
+
+
+#### Step 3: Update code in cluster (Mention directory above directory of interest)
+pscp -r "C:\Cloud\Box Sync\HCUP Data\jvargh7\project\hcup\code" jvargh7@hpc5.sph.emory.edu:project/hcup/
+
+
+pscp -r "C:\Cloud\Box Sync\HCUP Data\jvargh7\project\hcup\working\california_30days_scenario1.RDS" jvargh7@hpc5.sph.emory.edu:project/hcup/working
+
+ls project/hcup/
+cat project/hcup/code/cluster_main_outcome.R
+
+#### Step 4: Download outputs
+pscp -r jvargh7@hpc5.sph.emory.edu:/home/jvargh7/project/hcup/working/Y/*_2019-06-25.RDS "C:\Cloud\Box Sync\HCUP Data\jvargh7\output"
+pscp -r jvargh7@hpc5.sph.emory.edu:/home/jvargh7/project/hcup/working/models/*_2019-06-25.RDS "C:\Cloud\Box Sync\HCUP Data\jvargh7\output"
+
+#### Step 5: Bash commands
+qsub -q long.q project/hcup/code/cluster_main_readmissionR.sh
+cat project/hcup/code/cluster_main_outcome.R
+cat project/hcup/code/cluster_df.R
+
+
+ls project/hcup/working/models
+qstat
+qdel jobid#
+
+
+#### 2019-11-29
+
+by_disease = TRUE (chronic, acute): 
+by_disease = FALSE : cat project/hcup/hcup_readmission.e2058730
+
+cat project/hcup/hcup_readmission.e2069893
+
+
+

@@ -1,2 +1,6 @@
 #ignore files
 supp_files/
+data/
+imputation/acs_tablezip/education
+imputation/acs_tablezip/income
+imputation/acs_tablezip/race

@@ -1,0 +1,703 @@
+---
+title: "data_clean"
+author: "Teg Uppal"
+date: "2/11/2020"
+output: html_document
+---
+
+```{r}
+user<-Sys.info()["user"]
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+data_path<-"H:/Job/Merck/HCUP_data/"
+nis_path<-paste0(data_path, "hcup_obj/NIS_obj")
+nis_obj<-dir(nis_path)
+nis_obj
+nis_diab_path<-paste0(data_path, "hcup_diab/NIS_diab_obj/")
+trend_path<-paste0(data_path, "supp_files/trend_wt")
+trend_obj<-dir(trend_path)
+hosp_path<-paste0(data_path, "supp_files/hospital")
+hosp_obj<-dir(hosp_path)
+}
+
+if(user=="teg83"){
+nis_path <- paste0(repo, "/data/hcup_obj/NIS_obj")
+nis_obj<-dir(nis_path)
+nis_obj
+nis_diab_path<-paste0(repo,"/data/hcup_obj/NIS_diab_obj")
+trend_path<-paste0(repo, "/supp_files/trend_wt")
+trend_obj<-dir(trend_path)
+hosp_path<-paste0(repo, "/supp_files/hospital")
+hosp_obj<-dir(hosp_path)
+}
+
+var_0811<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15", "PR1", "PR2", "PR3", "PR4", "PR5", "FEMALE", "HCUP_ED", "HOSPID", "KEY", "HOSP_LOCTEACH", "LOS", "NIS_STRATUM", "NDX", "PAY1", "HOSP_REGION", "PL_NCHS2006", "RACE" ,"YEAR", "TRENDWT", "DRG", "diab")
+var_14<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15", "PR1", "PR2", "PR3", "PR4", "PR5", "FEMALE", "HCUP_ED", "HOSP_NIS", "KEY_NIS", "HOSP_LOCTEACH", "HOSP_LOCTEACH",  "LOS", "NIS_STRATUM", "NDX", "PAY1",  "HOSP_REGION", "PL_NCHS", "RACE","YEAR", "DRG", "diab")
+var_16<-c("AGE", "DISCWT", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9", "I10_DX10", "I10_DX11", "I10_DX12",  "I10_DX13",  "I10_DX14",  "I10_DX15", "I10_DX16",  "I10_DX17",  "I10_DX18",  "I10_DX19", "I10_DX20",  "I10_DX21",  "I10_DX22",  "I10_DX23", "I10_DX24",  "I10_DX25",  "I10_DX26",  "I10_DX27", "I10_DX28",  "I10_DX29",  "I10_DX30", "I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6", "I10_PR7", "I10_PR8", "I10_PR9", "I10_PR10", "FEMALE", "HCUP_ED", "HOSP_NIS", "KEY_NIS", "HOSP_LOCTEACH",  "LOS", "NIS_STRATUM", "I10_NDX", "PAY1", "HOSP_REGION","PL_NCHS", "RACE" ,"YEAR", "DRG", "diab")
+
+diab_ind<-function(x){
+ifelse(yr %in% c(2016,2017),
+diab_code<-c("E10", "E11", "E13"),
+diab_code<-c("250"))
+diab<- ifelse(substring(x, 1,3) %in% diab_code, 1, 0)
+return(diab)
+}
+
+all_cause_diab<-function(x){
+yr<-mean(x$YEAR)
+x<-tibble::rowid_to_column(x, "rowID")
+if(yr ==2016){
+ICD<-startsWith(colnames(x), "I10_DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_10<-c("rowID", "HOSP_NIS", ICD)
+w<-x[ICD_10]
+ICD_10<-ICD
+diab_code<-c("E10", "E11", "E13")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}else if (yr ==2014){
+ICD<-startsWith(colnames(x), "DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_9<-c("rowID", "HOSP_NIS", ICD)
+w<-x[ICD_9]
+ICD_9<-ICD
+diab_code<-c("250")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}else{
+ICD<-startsWith(colnames(x), "DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_9<-c("rowID", "HOSPID", ICD)
+w<-x[ICD_9]
+ICD_9<-ICD
+diab_code<-c("250")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}
+return(x)
+}
+
+#2008
+gc()
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[1])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(trend_path,"/", trend_obj[1]))
+w<-read_sas(paste0(hosp_path, "/",hosp_obj[1]))
+colnames(w)
+v<-join(x, y, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-join(v, w, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-z[var_0811]
+
+y<-svydesign(id = ~HOSPID, strata = ~NIS_STRATUM, weights = ~TRENDWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[1], 1,8), "_diab.RDS"))
+rm(v,w,x,y,z)
+
+
+#2011
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[2])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(trend_path, "/", trend_obj[2]))
+w<-read_sas(paste0(hosp_path, "/", hosp_obj[2]))
+v<-join(x, y, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-join(v, w, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-z[var_0811]
+y<-svydesign(id = ~HOSPID, strata = ~NIS_STRATUM, weights = ~TRENDWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[2], 1,8), "_diab.RDS"))
+rm(v,w,x,y,z)
+
+
+#2014
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[3])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(hosp_path, "/",hosp_obj[3]))
+z<-join(x, y, by =c("YEAR", "HOSP_NIS"), type="left", match="all")
+z<-z[var_14]
+y<-svydesign(id = ~HOSP_NIS, strata = ~NIS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[3], 1,8), "_diab.RDS"))
+rm(x,y,z)
+
+count(x$dxreason)
+chck<-subset(x, diab==1)
+count(x$dxreason)
+#2016
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[4])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(hosp_path,"/",hosp_obj[4]))
+z<-join(x, y, by =c("YEAR", "HOSP_NIS"), type="left", match="all")
+z<-z[var_16]
+y<-svydesign(id = ~HOSP_NIS, strata = ~NIS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0),
+        all=1)
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
+rm(x,y,z)
+y<-readRDS(file=paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
+
+```
+
+```{r}
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+data_path<-"H:/Job/Merck/HCUP_data/"
+neds_path<-paste0(data_path, "hcup_obj/NEDS_obj")
+neds_obj<-dir(neds_path)
+neds_obj
+neds_diab_path<-paste0(data_path, "hcup_diab/NEDS_diab_obj/")
+hosp_path<-paste0(data_path, "supp_files/hospital_neds")
+hosp_obj<-dir(hosp_path)
+ip_path<-paste0(data_path, "supp_files/inpatient_neds")
+ip_obj<-dir(ip_path)
+}
+if(user=="teg83"){
+neds_path <- paste0(repo, "data/hcup_obj/NEDS_obj")
+neds_obj<-dir(neds_path)
+neds_obj
+neds_diab_path<-paste0(repo,"/data/hcup_diab/NEDS_diab_obj/")
+hosp_path<-paste0(repo, "/supp_files/hospital_neds")
+hosp_obj<-dir(hosp_path)
+ip_path<-paste0(repo, "/supp_files/inpatient_neds")
+ip_obj<-dir(ip_path)
+}
+
+var_0811<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15", "FEMALE", "HOSP_ED", "KEY_ED", "HOSP_UR_TEACH", "NEDS_STRATUM", "DISP_ED", "NDX", "PAY1", "PAY2", "HOSP_REGION", "HOSP_UR_TEACH", "HOSP_URCAT4", "PL_NCHS2006" ,"YEAR")
+var_14<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15",  "FEMALE", "HOSP_ED", "KEY_ED", "HOSP_UR_TEACH", "NEDS_STRATUM", "DISP_ED", "NDX", "PAY1", "PAY2", "HOSP_REGION", "HOSP_UR_TEACH", "HOSP_URCAT4", "PL_NCHS", "YEAR", "DRG")
+var_14_p<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15", "FEMALE", "HOSP_ED", "KEY_ED","NEDS_STRATUM", "DISP_ED", "NDX", "PAY1", "PAY2", "PL_NCHS", "YEAR", "DRG")
+var_16<-c("AGE", "DISCWT", (as.character(paste0("I10_DX", 1:30))), "FEMALE", "HOSP_ED", "KEY_ED", "HOSP_UR_TEACH", "NEDS_STRATUM", "DISP_ED", "I10_NDX", "PAY1", "PAY2", "HOSP_REGION", "HOSP_UR_TEACH", "HOSP_URCAT4","PL_NCHS", "YEAR", "DRG")
+inpt_var<-c("HOSP_ED", "KEY_ED", "DISP_IP", "LOS_IP")
+
+
+#2008
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[1])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[1]))
+w<-read_sas(paste0(ip_path,"/", ip_obj[1]))
+w<-w[inpt_var]
+head(x$HCUP_ED)
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_0811]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(neds_diab_path, substring(neds_obj[1], 1,9), "_diab.RDS"))
+gc()
+rm(x,y,w,z)
+#2011
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[2])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[2]))
+z<-join(x,y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_0811]
+gc()
+rm(x,y)
+w<-read_sas(paste0(ip_path, "/", ip_obj[2]))
+w<-w[inpt_var]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+rm(x,w,z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(neds_diab_path, substring(neds_obj[2], 1,9), "_diab.RDS"))
+gc()
+rm(x,y,w,z)
+#2014
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[3])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+colnames(x)
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[3]))
+x<-x[var_14_p]
+gc()
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_14]
+gc()
+rm(x,y)
+w<-read_sas(paste0(ip_path,"/", ip_obj[3]))
+w<-w[inpt_var]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+gc()
+saveRDS(z, file=paste0(neds_diab_path, substring(neds_obj[3], 1,9), "_diab_bs.RDS"))
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+rm(z)
+gc()
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(neds_diab_path, substring(neds_obj[3], 1,9), "_diab.RDS"))
+rm(x,y,z)
+gc()
+#2016
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[4])))
+yr<-mean(x$YEAR)
+x<-all_cause_diab(x)
+setwd(repo)
+source("./setup/condition_codes.R")
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[4]))
+gc()
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_16]
+gc()
+rm(x,y)
+w<-read_sas(paste0(ip_path,"/", ip_obj[4]))
+w<-w[inpt_var]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+rm(w)
+gc()
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(neds_diab_path, substring(neds_obj[4], 1,9), "_diab.RDS"))
+rm(x,y,z)
+gc()
+```
+
+
+```{r}
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+sid_path<-"H:/Job/Merck/HCUP_data/hcup_obj/SID_obj"
+sid_obj<-dir(sid_path)
+sid_obj
+sid_diab_path<-"H:/Job/Merck/HCUP_data/hcup_diab/SID_diab_obj/"
+}
+if(user=="teg83"){
+sid_path<-paste0(repo,"/data/hcup_obj/SID_obj/")
+sid_obj<-dir(sid_path)
+sid_obj
+sid_diab_path<-paste0(repo,"/data/nis/SID_diab_obj/")
+}
+all_cause_diab<-function(x){
+yr<-mean(x$YEAR)
+x<-tibble::rowid_to_column(x, "rowID")
+if(yr ==2016){
+ICD<-startsWith(colnames(x), "I10_DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_10<-c("rowID", "KEY", ICD)
+w<-x[ICD_10]
+ICD_10<-ICD
+diab_code<-c("E10", "E11", "E13")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}else if (yr ==2014){
+ICD<-startsWith(colnames(x), "DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_9<-c("rowID", "KEY", ICD)
+w<-x[ICD_9]
+ICD_9<-ICD
+diab_code<-c("250")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}else{
+ICD<-startsWith(colnames(x), "DX")
+ICD<-colnames(x[ICD])
+ICD<-ICD[!grepl('CCS', ICD)]
+ICD_9<-c("rowID", "KEY", ICD)
+w<-x[ICD_9]
+ICD_9<-ICD
+diab_code<-c("250")
+x$diab<-as.numeric(Reduce('|', lapply(x[ICD], diab_ind)))
+}
+return(x)
+}
+
+var_sid<-c("AGE", as.character(paste0("DX", 1:66)), as.character(paste0("I10_DX", 1:50)), as.character(paste0("PR", 1:60)), as.character(paste0("I10_PR", 1:60)), "FEMALE", "KEY", "HCUP_ED", "I10_NDX","NDX", "PAY1", "PAY2", "PL_NCHS2006", "PL_NCHS", "RACE", "RACE_X", "YEAR")
+
+#present on admission: "DXPOA1", "DXPOA2", "DXPOA3", "DXPOA4", "DXPOA5"
+#var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9","PR1", "PR2", "PR3", "PR4", "PR5", "FEMALE", "KEY", "NDX", "PAY1", "PL_NCHS2006", "RACE","YEAR")
+#var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9","PR1", "PR2", "PR3", "PR4", "PR5",  "FEMALE", "KEY", "NDX", "PAY1", "PL_NCHS", "RACE", "YEAR", "DRG")
+#var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9","I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6", "I10_PR7", "I10_PR8", "I10_PR9", "I10_PR10", "FEMALE", "KEY", "I10_NDX", "PAY1", "PL_NCHS", "RACE", "YEAR", "DRG")
+#ne_var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9","I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6", "I10_PR7", "I10_PR8", "I10_PR9", "I10_PR10", "FEMALE", "KEY", "I10_NDX", "PAY1", "PL_NCHS", "YEAR", "DRG")
+#ut_var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9","I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6", "I10_PR7", "I10_PR8", "I10_PR9", "I10_PR10", "FEMALE", "KEY", "I10_NDX", "PAY1", "PL_NCHS", "RACE_X", "YEAR", "DRG")
+
+#ne_var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9","PR1", "PR2", "PR3", "PR4", "PR5", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1",  "PL_NCHS2006", "YEAR", "DRG")
+#ut_var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9","PR1", "PR2", "PR3", "PR4", "PR5", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1",  "PL_NCHS2006", "RACE", "YEAR", "DRG")
+#ne_var_17<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9","I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6", "I10_PR7", "I10_PR8", "I10_PR9", "I10_PR10", "FEMALE", "KEY", "HCUP_ED", "I10_NDX", "PAY1", "PL_NCHS", "YEAR", "DRG")
+#ut_var_17<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9","I10_PR1", "I10_PR2", "I10_PR3", "I10_PR4", "I10_PR5", "I10_PR6","FEMALE", "KEY", "HCUP_ED", "I10_NDX", "PAY1", "PL_NCHS", "RACE_X", "YEAR", "DRG")
+#ut procedure codes may max out at 6
+#ne_var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "PR1", "PR2", "PR3", "PR4", "PR5","FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1", "PL_NCHS", "YEAR", "DRG")
+#ut_var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "PR1", "PR2", "PR3", "PR4", "PR5","FEMALE", "KEY", "HCUP_ED", #"NDX", "PAY1", "PL_NCHS", "RACE", "YEAR", "DRG")
+
+for (i in seq_along(sid_obj[c(1:44)])){
+   x<-readRDS(file=(paste0(sid_path, "/", sid_obj[i])))
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ne_2017"), x<-x[ne_var_17], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ne_2008"), x<-x[ne_var_0811], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ne_2011"), x<-x[ne_var_0811], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ne_2014"), x<-x[ne_var_14], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ut_2017"), x<-x[ut_var_17], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ut_2008"), x<-x[ut_var_0811], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ut_2011"), x<-x[ut_var_0811], 
+#    ifelse(paste0(substring(sid_obj[i], 1,2), "_", substring(sid_obj[i], 9, 12)) %in% c("ut_2014"), x<-x[ut_var_14],
+#    ifelse(substring(sid_obj[i], 9, 12) %in% c("2008", "2011"), x<-x[var_0811],
+#    ifelse(substring(sid_obj[i], 9, 12) %in% c("2014"), x<-x[var_14],
+#    x<-x[var_16]))))))))))
+   yr<-mean(x$YEAR)
+   x<-all_cause_diab(x)
+   setwd(repo)
+   source("./setup/condition_codes.R")
+   x<-x %>%
+  select(one_of(var_sid))
+   x<-all_cause_diab(x)
+   x<-x %>% 
+        mutate(adult=ifelse(AGE>=18,1,0))
+   x<-subset(x, adult==1 & diab==1)
+saveRDS(x, file=paste0(sid_diab_path, substring(sid_obj[i], 1,12), "_diab.RDS"))
+rm(x)
+gc()
+}
+```
+
+```{r}
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+sedd_path<-"H:/Job/Merck/HCUP_data/hcup_obj/SEDD_obj"
+sedd_obj<-dir(sedd_path)
+sedd_obj
+sedd_diab_path<-"H:/Job/Merck/HCUP_data/hcup_diab/SEDD_diab_obj/"
+}
+if(user=="teg83"){
+sedd_path<-paste0(repo,"/data/hcup_obj/SEDD_obj/")
+sedd_obj<-dir(sedd_path)
+sedd_obj4
+sedd_diab_path<-paste0(repo,"/data/hcup_diab/SEDD_diab_obj/")
+}
+
+var_sedd<-c("AGE", as.character(paste0("DX", 1:66)), as.character(paste0("I10_DX", 1:50)), "FEMALE", "KEY", "HCUP_ED", "I10_NDX","NDX", "PAY1", "PAY2", "PL_NCHS2006", "PL_NCHS", "RACE", "RACE_X", "YEAR")
+
+#present on admission: "DXPOA1", "DXPOA2", "DXPOA3", "DXPOA4", "DXPOA5"
+#var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9",  "FEMALE", "KEY", "NDX", "PAY1", "PL_NCHS2006", "RACE","YEAR", "INJURY")
+#var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9","FEMALE", "KEY", "NDX", "PAY1","PL_NCHS", "RACE", "YEAR", "INJURY")
+#var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "FEMALE", "KEY", "I10_NDX", "PAY1","PL_NCHS", "RACE", "YEAR", "I10_INJURY")
+#ne_var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "FEMALE", "KEY", "I10_NDX", "PAY1","PL_NCHS", "YEAR", "I10_INJURY")
+#ut_var_16<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "FEMALE", "KEY", "I10_NDX", "PAY1","PL_NCHS", "RACE_X", "YEAR", "I10_INJURY")
+#present on admission: "DXPOA1", "DXPOA2", "DXPOA3", "DXPOA4", "DXPOA5"
+#ne_var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1","PL_NCHS2006", "YEAR", "INJURY")
+#ut_var_0811<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1","PL_NCHS2006", "RACE", "YEAR", "INJURY")
+#ne_var_17<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9", "FEMALE", "KEY", "HCUP_ED", "I10_NDX", "PAY1","PL_NCHS", "YEAR", "I10_INJURY")
+#ut_var_17<-c("AGE", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9", "FEMALE", "KEY", "HCUP_ED", "I10_NDX", "PAY1","PL_NCHS", "RACE_X", "YEAR", "I10_INJURY")
+#ne_var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1","PL_NCHS", "YEAR", "INJURY")
+#ut_var_14<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "FEMALE", "KEY", "HCUP_ED", "NDX", "PAY1","PL_NCHS", "RACE_X", "YEAR", "INJURY")
+#nc_var_11<-c("AGE", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "FEMALE", "KEY", "NDX", "PAY1","PL_NCHS2006", "YEAR", "INJURY")
+
+#utah 2017 NO RACE?
+for (i in seq_along(sedd_obj[c(1:44)])){
+    x<-readRDS(file=(paste0(sedd_path, "/", sedd_obj[i])))
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ne_2017"), x<-x[ne_var_17],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ne_2008"), x<-x[ne_var_0811],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ne_2011"), x<-x[ne_var_0811],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ne_2014"), x<-x[ne_var_14],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ut_2017"), x<-x[ut_var_17],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ut_2008"), x<-x[ut_var_0811],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ut_2011"), x<-x[ut_var_0811],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("ut_2014"), x<-x[ut_var_14],
+    #ifelse(paste0(substring(sedd_obj[i], 1,2), substring(sedd_obj[i], 9, 13)) %in% c("nc_2011"), x<-x[nc_var_11],
+    #ifelse(substring(sedd_obj[i], 10, 13) %in% c("2008", "2011"), x<-x[var_0811],
+    #ifelse(substring(sedd_obj[i], 10, 13) %in% c("2014"), x<-x[var_14],
+    #x<-x[var_16])))))))))))
+    yr<-mean(x$YEAR)
+  x<-all_cause_diab(x)
+  setwd(repo)
+  source("./setup/condition_codes.R")
+  x<-x %>%
+  select(one_of(var_sedd)) %>%
+  mutate(adult=ifelse(AGE>=18,1,0))
+    x<-all_cause_diab(x)
+    x<-subset(x, adult==1 & diab==1)
+saveRDS(x, file=paste0(sedd_diab_path, substring(sedd_obj[i], 1,13), "_diab.RDS"))
+rm(x)
+gc()
+}
+```
+
+```{r}
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+data_path<-"H:/Job/Merck/HCUP_data/"
+nis_path<-paste0(data_path, "hcup_obj/NEDS_obj")
+nis_obj<-dir(nis_path)
+nis_obj
+nis_diab_path<-paste0(data_path, "hcup_diab/NEDS_diab_obj/")
+trend_path<-paste0(data_path, "supp_files/trend_wt")
+trend_obj<-dir(trend_path)
+hosp_path<-paste0(data_path, "supp_files/hospital")
+hosp_obj<-dir(hosp_path)
+}
+if(user=="teg83"){
+nis_path <- paste0(repo, "/data/hcup_obj/NIS_obj")
+nis_obj<-dir(nis_path)
+nis_obj
+nis_diab_path<-paste0(repo,"/data/hcup_diab/NIS_diab_obj")
+trend_path<-paste0(repo, "/supp_files/trend_wt")
+trend_obj<-dir(trend_path)
+hosp_path<-paste0(repo, "/supp_files/hospital")
+hosp_obj<-dir(hosp_path)
+}
+
+var_0811<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15","PR1", "PR2", "PR3", "PR4", "PR5",  "FEMALE", "HCUP_ED", "HOSPID", "KEY", "LOS", "NIS_STRATUM", "NDX", "PAY1", "PAY2", "HOSP_REGION", "PL_NCHS2006", "RACE" ,"YEAR", "TRENDWT")
+var_14<-c("AGE", "DISCWT", "DX1", "DX2", "DX3", "DX4", "DX5", "DX6", "DX7","DX8", "DX9", "DX10", "DX11", "DX12", "DX13", "DX14", "DX15","PR1", "PR2", "PR3", "PR4", "PR5",  "FEMALE", "HCUP_ED", "HOSP_NIS", "KEY_NIS", "LOS", "NIS_STRATUM", "NDX", "PAY1", "PAY2", "HOSP_REGION", "PL_NCHS", "RACE" ,"YEAR")
+var_16<-c("AGE", "DISCWT", "I10_DX1", "I10_DX2", "I10_DX3", "I10_DX4", "I10_DX5", "I10_DX6", "I10_DX7", "I10_DX8", "I10_DX9", "I10_DX10", "I10_DX11", "I10_DX12",  "I10_DX13",  "I10_DX14",  "I10_DX15", "I10_DX16",  "I10_DX17",  "I10_DX18",  "I10_DX19", "I10_DX20",  "I10_DX21",  "I10_DX22",  "I10_DX23", "I10_DX24",  "I10_DX25",  "I10_DX26",  "I10_DX27", "I10_DX28",  "I10_DX29",  "I10_DX30", "FEMALE", "HCUP_ED", "HOSP_NIS", "KEY_NIS", "LOS", "NIS_STRATUM", "I10_NDX", "PAY1", "PAY2", "HOSP_REGION","PL_NCHS", "RACE" ,"YEAR")
+
+#2008
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[1])))
+y<-read_sas(paste0(trend_path,"/",trend_obj[1]))
+w<-read_sas(paste0(hosp_path,"/",hosp_obj[1]))
+colnames(w)
+v<-join(x, y, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-join(v, w, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-z[var_0811]
+y<-svydesign(id = ~HOSPID, strata = ~NIS_STRATUM, weights = ~TRENDWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0),
+        diab = ifelse(substring(DX1, 1,3) %in% 250
+          |substring(DX2, 1,3) %in% 250
+          |substring(DX3, 1,3) %in% 250
+          |substring(DX4, 1,3) %in% 250
+          |substring(DX5, 1,3) %in% 250, 1,0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[1], 1,8), "_diab.RDS"))
+rm(v,w,x,y,z)
+
+#2011
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[2])))
+y<-read_sas(paste0(trend_path,"/",trend_obj[2]))
+w<-read_sas(paste0(hosp_path,"/",hosp_obj[2]))
+v<-join(x, y, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-join(v, w, by =c("YEAR", "HOSPID"), type="left", match="all")
+z<-z[var_0811]
+y<-svydesign(id = ~HOSPID, strata = ~NIS_STRATUM, weights = ~TRENDWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0),
+        diab = ifelse(substring(DX1, 1,3) %in% 250
+          |substring(DX2, 1,3) %in% 250
+          |substring(DX3, 1,3) %in% 250
+          |substring(DX4, 1,3) %in% 250
+          |substring(DX5, 1,3) %in% 250, 1,0))
+y<-subset(y, adult==1&diab==1)
+object.size(y)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[2], 1,8), "_diab.RDS"))
+rm(v,w,x,y,z)
+
+
+#2014
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[3])))
+y<-read_sas(paste0(trend_path,"/",trend_obj[3]))
+z<-join(x, y, by =c("YEAR", "HOSP_NIS"), type="left", match="all")
+z<-z[var_14]
+y<-svydesign(id = ~HOSP_NIS, strata = ~NIS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0),
+        diab = ifelse(substring(DX1, 1,3) %in% 250
+          |substring(DX2, 1,3) %in% 250
+          |substring(DX3, 1,3) %in% 250
+          |substring(DX4, 1,3) %in% 250
+          |substring(DX5, 1,3) %in% 250, 1,0))
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[3], 1,8), "_diab.RDS"))
+rm(x,y,z)
+
+#2016
+x<-readRDS(file=(paste0(nis_path, "/", nis_obj[4])))
+y<-read_sas(paste0(trend_path,"/",trend_obj[4]))
+z<-join(x, y, by =c("YEAR", "HOSP_NIS"), type="left", match="all")
+z<-z[var_16]
+y<-svydesign(id = ~HOSP_NIS, strata = ~NIS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0),
+        diab = ifelse(substring(I10_DX1, 1,3) %in% c("E10", "E11", "E13")
+          |substring(I10_DX2, 1,3) %in% c("E10", "E11", "E13")
+          |substring(I10_DX3, 1,3) %in% c("E10", "E11", "E13")
+          |substring(I10_DX4, 1,3) %in% c("E10", "E11", "E13")
+          |substring(I10_DX5, 1,3) %in% c("E10", "E11", "E13"),
+          1,0))
+y<-subset(y, adult==1&diab==1)
+saveRDS(y, file=paste0(nis_diab_path, substring(nis_obj[4], 1,8), "_diab.RDS"))
+rm(x,y,z)
+```
+
+```{r}
+if(user=="TUPPAL"|user=="tuppal_rsphemory"){
+data_path<-"H:/Job/Merck/HCUP_data/"
+neds_path<-paste0(data_path, "hcup_obj/NEDS_obj")
+neds_obj<-dir(neds_path)
+neds_obj
+neds_diab_path<-paste0(data_path, "hcup_diab/NEDS_diab_obj/")
+hosp_path<-paste0(data_path, "supp_files/hospital_neds")
+hosp_obj<-dir(hosp_path)
+ip_path<-paste0(data_path, "supp_files/inpatient_neds")
+ip_obj<-dir(ip_path)
+}
+if(user=="teg83"){
+neds_path <- paste0(repo, "data/hcup_obj/NEDS_obj")
+neds_obj<-dir(neds_path)
+neds_obj
+neds_diab_path<-paste0(repo,"/data/hcup_diab/NEDS_diab_obj/")
+hosp_path<-paste0(repo, "/supp_files/hospital_neds")
+hosp_obj<-dir(hosp_path)
+ip_path<-paste0(repo, "/supp_files/inpatient_neds")
+ip_obj<-dir(ip_path)
+}
+
+
+var_0811<-c("AGE", "DISCWT", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "NDX", "PAY1", "PAY2", "HOSP_REGION", "DISP_ED", "PL_NCHS2006","YEAR")
+var_14<-c("AGE", "DISCWT", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "NDX", "PAY1", "PAY2", "HOSP_REGION", "DISP_ED", "PL_NCHS", "YEAR")
+var_14_p<-c("AGE", "DISCWT", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "NDX", "PAY1", "PAY2", "DISP_ED", "PL_NCHS", "YEAR")
+var_16<-c("AGE", "DISCWT", "FEMALE", "HOSP_ED", "KEY_ED", "NEDS_STRATUM", "I10_NDX", "PAY1", "PAY2", "HOSP_REGION", "DISP_ED", "PL_NCHS", "YEAR")
+inpt_var<-c("HOSP_ED", "KEY_ED", "DISP_IP", "LOS_IP")
+
+
+#2008
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[1])))
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[1]))
+w<-read_sas(paste0(ip_path,"/", ip_obj[1]))
+w<-w[inpt_var]
+head(x$HCUP_ED)
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_0811]
+colnames(z)
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1)
+
+object.size(y)
+saveRDS(y, file=paste0(neds_ip_path, substring(neds_obj[1], 1,9), "_ip.RDS"))
+gc()
+#2011
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[2])))
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[2]))
+w<-read_sas(paste0(ip_path,"/", ip_obj[2]))
+w<-w[inpt_var]
+z<-join(x,y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_0811]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+rm(x,w,z)
+
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1)
+
+object.size(y)
+saveRDS(y, file=paste0(neds_ip_path, substring(neds_obj[2], 1,9), "_ip.RDS"))
+gc()
+#2014
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[3])))
+colnames(x)
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[3]))
+
+x<-x[var_14_p]
+gc()
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_14]
+gc()
+rm(x,y)
+w<-read_sas(paste0(ip_path,"/", ip_obj[3]))
+w<-w[inpt_var]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+gc()
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+rm(z)
+gc()
+
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1)
+
+saveRDS(y, file=paste0(neds_ip_path, substring(neds_obj[3], 1,9), "_ip.RDS"))
+rm(x,y,z)
+gc()
+#2016
+x<-readRDS(file=(paste0(neds_path, "/", neds_obj[4])))
+y<-read_sas(paste0(hosp_path,"/", hosp_obj[4]))
+gc()
+z<-join(x, y, by =c("YEAR", "HOSP_ED"), type="left", match="all")
+z<-z[var_16]
+gc()
+rm(x,y)
+w<-read_sas(paste0(ip_path,"/", ip_obj[4]))
+w<-w[inpt_var]
+z<-join(z, w, by =c("HOSP_ED", "KEY_ED"), type="left", match="all")
+rm(w)
+gc()
+y<-svydesign(id = ~HOSP_ED, strata = ~NEDS_STRATUM, weights = ~DISCWT,
+nest = TRUE, data = z)
+
+y <- 
+    update(y, 
+        adult= ifelse(AGE>=18, 1, 0))
+y<-subset(y, adult==1)
+
+saveRDS(y, file=paste0(neds_ip_path, substring(neds_obj[4], 1,9), "_ip.RDS"))
+rm(x,y,z)
+gc()
+
+
+
+```
+
+
